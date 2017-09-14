@@ -55,9 +55,7 @@ export default class App extends React.Component {
           tweenHandler={Drawer.tweenPresets.parallax}
           ref={(ref) => this._drawer = ref}
           tapToClose={true}
-          openDrawerOffset={0.5}
-          panCloseMask={0.2}
-          closedDrawerOffset={-3}
+          openDrawerOffset={100}
           content={<Text>Yolo</Text>}
         >
           <View style={styles.header}>
