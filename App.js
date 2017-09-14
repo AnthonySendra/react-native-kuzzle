@@ -4,6 +4,7 @@ import Icon from 'react-native-vector-icons/Entypo'
 import Drawer from 'react-native-drawer'
 import Kuzzle from 'kuzzle-sdk/dist/kuzzle.js'
 import MessageList from './MessageList.js'
+import ChannelList from './ChannelList'
 
 const kuzzle = new Kuzzle('10.34.50.59', {defaultIndex: 'foo'}, (err, res) => {
   if (err) {
@@ -13,9 +14,8 @@ const kuzzle = new Kuzzle('10.34.50.59', {defaultIndex: 'foo'}, (err, res) => {
   }
 })
 const messagesCollection = kuzzle.collection('slack-messages')
+const channelsCollection = kuzzle.collection('slack')
 let room
-
-
 
 export default class App extends React.Component {
   constructor(props) {
@@ -23,21 +23,41 @@ export default class App extends React.Component {
     this.state = {
       message: '',
       messages: [],
+      channels: [],
       channel: '#kuzzle'
     }
   }
-  componentDidMount() {
-    messagesCollection.search({ query: { term: { channel: this.state.channel.replace('#', '')} }, sort: [{ timestamp: 'asc' }] }, { size: 100 }, (err, result) => {
-      let messages = []
-      result.getDocuments().forEach(function(document) {
-        messages.push(document.content.content)
-      })
 
-      this.setState({messages})
-      // setTimeout(() => {
-      //   this._flatList.scrollToEnd();
-      // }, 100)
-    })
+  _listMessages = () => {
+    messagesCollection
+      .search({ query: { term: { channel: this.state.channel.replace('#', '')} }, sort: [{ timestamp: 'asc' }] }, { size: 100 }, (err, result) => {
+        let messages = []
+        result.getDocuments().forEach(function(document) {
+          messages.push(document.content.content)
+        })
+
+        this.setState({messages})
+        // setTimeout(() => {
+        //   this._flatList.scrollToEnd();
+        // }, 100)
+      })
+  }
+
+  _listChannels = () => {
+    channelsCollection
+      .search({ query: { terms: { type: ['public', 'restricted'] } } }, (err, result) => {
+        let channels = []
+        result.getDocuments().forEach(function(document) {
+          channels.push(document.id)
+        })
+
+        this.setState({channels})
+      })
+  }
+
+  componentDidMount() {
+    this._listChannels()
+    this._listMessages()
 
     messagesCollection
       .subscribe({}, {subscribeToSelf: false, scope: 'in'}, (error, result) => {
@@ -52,7 +72,7 @@ export default class App extends React.Component {
       })
   }
 
-  _onSubmit = (event) => {
+  _onSubmit = () => {
     messagesCollection
       .createDocument({message: this.state.message}, (err, res) => {
         if (err) {
@@ -75,6 +95,11 @@ export default class App extends React.Component {
     room.unsubscribe()
   }
 
+  _selectChannel = (channel) => {
+    this.setState({channel})
+    this._listMessages()
+    this._drawer.close()
+  }
 
   render() {
     return (
@@ -85,7 +110,7 @@ export default class App extends React.Component {
           ref={(ref) => this._drawer = ref}
           tapToClose={true}
           openDrawerOffset={100}
-          content={<Text>Yolo</Text>}
+          content={<ChannelList data={this.state.channels} onSelect={this._selectChannel} />}
         >
           <View style={styles.header}>
             <Icon name="menu" size={30} color="#4F8EF7" onPress={this._showMenu} style={styles.headerButton} />
