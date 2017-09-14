@@ -79,7 +79,7 @@ export default class App extends React.Component {
           content={<Text>Yolo</Text>}
         >
           <View style={styles.header}>
-            <Icon name="menu" size={30} color="#4F8EF7" onPress={this._showMenu} />
+            <Icon name="menu" size={30} color="#4F8EF7" onPress={this._showMenu} style={styles.headerButton} />
             <Text style={styles.headerText}>Chanel BLABLA</Text>
           </View>
           <View style={styles.containerList}>
@@ -113,6 +113,9 @@ const styles = StyleSheet.create({
     alignItems:'center',
     flexDirection: 'row',
     justifyContent: 'center'
+  },
+  headerButton: {
+    marginLeft: 10
   },
   headerText: {
     height: 60,
