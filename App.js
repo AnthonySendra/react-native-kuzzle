@@ -21,7 +21,7 @@ export default class App extends React.Component {
       messages: []
     }
   }
-  componentWillMount() {
+  componentDidMount() {
     messagesCollection.search({}, {
       from: 0,
       size: 1000
@@ -32,6 +32,9 @@ export default class App extends React.Component {
       })
 
       this.setState({messages})
+      setTimeout(() => {
+        this._flatList.scrollToEnd();
+      }, 100)
     })
 
     messagesCollection
@@ -55,6 +58,10 @@ export default class App extends React.Component {
           return
         }
         this.setState({message: '', messages: [...this.state.messages, this.state.message]})
+        this._flatList.scrollToIndex({
+          index: this.state.messages.length - 1,
+          animated: true
+        });
       })
   }
 
@@ -65,6 +72,7 @@ export default class App extends React.Component {
   componentWillUnmount() {
     room.unsubscribe()
   }
+
 
   render() {
     return (
@@ -83,9 +91,11 @@ export default class App extends React.Component {
           </View>
           <View style={styles.containerList}>
             <FlatList
+              ref={(ref) => this._flatList = ref}
               data={this.state.messages}
               renderItem={({item}) => <Text style={styles.item}>{item}</Text>}
               keyExtractor={(item, index) => index}
+              getItemLayout={(data, index) => ({ length: 44, offset: 44 * index, index })}
             />
           </View>
           <View style={styles.footer}>
