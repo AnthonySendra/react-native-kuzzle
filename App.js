@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, FlatList, TextInput, KeyboardAvoidingView, Butt
 import Icon from 'react-native-vector-icons/Entypo'
 import Drawer from 'react-native-drawer'
 import Kuzzle from 'kuzzle-sdk/dist/kuzzle.js'
+import MessageList from './MessageList.js'
 
 const kuzzle = new Kuzzle('192.168.1.63', {defaultIndex: 'slack'}, (err, res) => {
   if (err) {
@@ -13,6 +14,8 @@ const kuzzle = new Kuzzle('192.168.1.63', {defaultIndex: 'slack'}, (err, res) =>
 })
 const messagesCollection = kuzzle.collection('messages')
 let room
+
+
 
 export default class App extends React.Component {
   constructor(props) {
@@ -33,9 +36,9 @@ export default class App extends React.Component {
       })
 
       this.setState({messages})
-      setTimeout(() => {
-        this._flatList.scrollToEnd();
-      }, 100)
+      // setTimeout(() => {
+      //   this._flatList.scrollToEnd();
+      // }, 100)
     })
 
     messagesCollection
@@ -59,10 +62,10 @@ export default class App extends React.Component {
           return
         }
         this.setState({message: '', messages: [...this.state.messages, this.state.message]})
-        this._flatList.scrollToIndex({
-          index: this.state.messages.length - 1,
-          animated: true
-        });
+        // this._flatList.scrollToIndex({
+        //   index: this.state.messages.length - 1,
+        //   animated: true
+        // });
       })
   }
 
@@ -91,13 +94,10 @@ export default class App extends React.Component {
             <Text style={styles.headerText}>Chanel BLABLA</Text>
           </View>
           <View style={styles.containerList}>
-            <FlatList
-              ref={(ref) => this._flatList = ref}
-              data={this.state.messages}
-              renderItem={({item}) => <Text style={styles.item}>{item}</Text>}
-              keyExtractor={(item, index) => index}
-              getItemLayout={(data, index) => ({ length: 44, offset: 44 * index, index })}
-            />
+            <MessageList
+              ref={(ref) => this._messageList = ref}
+              data={this.state.messages}>
+            </MessageList>
           </View>
           <View style={styles.footer}>
             <TextInput
@@ -139,11 +139,6 @@ const styles = StyleSheet.create({
   },
   containerList: {
     flex: 1
-  },
-  item: {
-    padding: 10,
-    fontSize: 18,
-    height: 44,
   },
   input: {
     borderTopWidth: 2,
