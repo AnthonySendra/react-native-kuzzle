@@ -1,10 +1,10 @@
 import React from 'react'
 import { StyleSheet, Text, View, FlatList, TextInput, KeyboardAvoidingView, Button } from 'react-native'
-import Icon from 'react-native-vector-icons/Entypo'
 import Drawer from 'react-native-drawer'
 import Kuzzle from 'kuzzle-sdk/dist/kuzzle.js'
 import MessageList from './MessageList.js'
 import ChannelList from './ChannelList'
+import Header from './Header'
 
 const kuzzle = new Kuzzle('10.34.50.59', {defaultIndex: 'foo'}, (err, res) => {
   if (err) {
@@ -112,10 +112,7 @@ export default class App extends React.Component {
           openDrawerOffset={100}
           content={<ChannelList data={this.state.channels} onSelect={this._selectChannel} />}
         >
-          <View style={styles.header}>
-            <Icon name="menu" size={30} color="#4F8EF7" onPress={this._showMenu} style={styles.headerButton} />
-            <Text style={styles.headerText}>Channel {this.state.channel}</Text>
-          </View>
+          <Header showMenu={this._showMenu} channel={this.state.channel}/>
           <View style={styles.containerList}>
             <MessageList
               ref={(ref) => this._messageList = ref}
@@ -139,26 +136,6 @@ export default class App extends React.Component {
 }
 
 const styles = StyleSheet.create({
-  header: {
-    backgroundColor: 'black',
-    flex: 0,
-    height: 60,
-    alignItems:'center',
-    flexDirection: 'row',
-    justifyContent: 'center'
-  },
-  headerButton: {
-    marginLeft: 10
-  },
-  headerText: {
-    height: 60,
-    flex: 1,
-    justifyContent: 'center',
-    textAlign: 'center',
-    color: '#fff',
-    fontSize: 20,
-    paddingTop: 15
-  },
   container: {
     flex: 1,
     paddingTop: 22
