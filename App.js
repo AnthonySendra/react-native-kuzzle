@@ -3,7 +3,13 @@ import { StyleSheet, Text, View, FlatList, TextInput, KeyboardAvoidingView, Butt
 import Drawer from 'react-native-drawer'
 import Kuzzle from 'kuzzle-sdk/dist/kuzzle.js'
 
-const kuzzle = new Kuzzle('192.168.1.63', {defaultIndex: 'slack'})
+const kuzzle = new Kuzzle('192.168.1.63', {defaultIndex: 'slack'}, (err, res) => {
+  if (err) {
+    console.error(err);
+  } else {
+    console.log('Connected!');
+  }
+})
 const messagesCollection = kuzzle.collection('messages')
 let room
 
@@ -26,17 +32,27 @@ export default class App extends React.Component {
     })
 
     messagesCollection
-      .subscribe({subscribeToSelf: false, scope: 'in'}, (error, result) => {
+      .subscribe({}, {subscribeToSelf: false, scope: 'in'}, (error, result) => {
         this.setState({messages: [...this.state.messages, result.document.content.message]})
       })
       .onDone((err, roomObject) => {
+        if (err) {
+          console.error(err)
+          return;
+        }
         room = roomObject
       })
   }
 
   _onSubmit = (event) => {
-    messagesCollection.createDocument({message: event.nativeEvent.text})
-    this.setState({message: '', messages: [...this.state.messages, event.nativeEvent.text]})
+    messagesCollection
+      .createDocument({message: event.nativeEvent.text}, (err, res) => {
+        if (err) {
+          console.error(err)
+          return
+        }
+        // this.setState({message: '', messages: [...this.state.messages, event.nativeEvent.text]})
+      })
   }
 
   _showMenu = () => {
