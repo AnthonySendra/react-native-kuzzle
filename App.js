@@ -24,7 +24,7 @@ export default class App extends React.Component {
   componentWillMount() {
     messagesCollection.search({}, {
       from: 0,
-      to: 1000
+      size: 1000
     }, (err, result) => {
       let messages = []
       result.getDocuments().forEach(function(document) {
