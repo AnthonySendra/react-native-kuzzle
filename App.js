@@ -1,5 +1,6 @@
 import React from 'react'
 import { StyleSheet, Text, View, FlatList, TextInput, KeyboardAvoidingView, Button } from 'react-native'
+import Icon from 'react-native-vector-icons/Entypo'
 import Drawer from 'react-native-drawer'
 import Kuzzle from 'kuzzle-sdk/dist/kuzzle.js'
 
@@ -78,7 +79,7 @@ export default class App extends React.Component {
           content={<Text>Yolo</Text>}
         >
           <View style={styles.header}>
-            <Button title="Test" onPress={this._showMenu} style={styles.headerButton}/>
+            <Icon name="menu" size={30} color="#4F8EF7" onPress={this._showMenu} />
             <Text style={styles.headerText}>Chanel BLABLA</Text>
           </View>
           <View style={styles.containerList}>
@@ -106,17 +107,21 @@ export default class App extends React.Component {
 
 const styles = StyleSheet.create({
   header: {
-    height: 60,
     backgroundColor: 'black',
+    flex: 0,
+    height: 60,
+    alignItems:'center',
+    flexDirection: 'row',
+    justifyContent: 'center'
   },
   headerText: {
+    height: 60,
     flex: 1,
+    justifyContent: 'center',
     textAlign: 'center',
     color: '#fff',
-    fontSize: 20
-  },
-  headerButton: {
-    flex: 1
+    fontSize: 20,
+    paddingTop: 15
   },
   container: {
     flex: 1,
