@@ -5,14 +5,14 @@ import Drawer from 'react-native-drawer'
 import Kuzzle from 'kuzzle-sdk/dist/kuzzle.js'
 import MessageList from './MessageList.js'
 
-const kuzzle = new Kuzzle('192.168.1.63', {defaultIndex: 'slack'}, (err, res) => {
+const kuzzle = new Kuzzle('10.34.50.59', {defaultIndex: 'foo'}, (err, res) => {
   if (err) {
     console.error(err);
   } else {
     console.log('Connected!');
   }
 })
-const messagesCollection = kuzzle.collection('messages')
+const messagesCollection = kuzzle.collection('slack-messages')
 let room
 
 
@@ -22,17 +22,15 @@ export default class App extends React.Component {
     super(props)
     this.state = {
       message: '',
-      messages: []
+      messages: [],
+      channel: '#kuzzle'
     }
   }
   componentDidMount() {
-    messagesCollection.search({}, {
-      from: 0,
-      size: 1000
-    }, (err, result) => {
+    messagesCollection.search({ query: { term: { channel: this.state.channel.replace('#', '')} }, sort: [{ timestamp: 'asc' }] }, { size: 100 }, (err, result) => {
       let messages = []
       result.getDocuments().forEach(function(document) {
-        messages.push(document.content.message)
+        messages.push(document.content.content)
       })
 
       this.setState({messages})
@@ -90,8 +88,8 @@ export default class App extends React.Component {
           content={<Text>Yolo</Text>}
         >
           <View style={styles.header}>
-            <Icon name="menu" size={30} color="#4F8EF7" onPress={this._showMenu} />
-            <Text style={styles.headerText}>Chanel BLABLA</Text>
+            <Icon name="menu" size={30} color="#4F8EF7" onPress={this._showMenu} style={styles.headerButton} />
+            <Text style={styles.headerText}>Channel {this.state.channel}</Text>
           </View>
           <View style={styles.containerList}>
             <MessageList
@@ -123,6 +121,9 @@ const styles = StyleSheet.create({
     alignItems:'center',
     flexDirection: 'row',
     justifyContent: 'center'
+  },
+  headerButton: {
+    marginLeft: 10
   },
   headerText: {
     height: 60,
