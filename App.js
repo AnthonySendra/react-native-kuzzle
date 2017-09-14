@@ -22,7 +22,10 @@ export default class App extends React.Component {
     }
   }
   componentWillMount() {
-    messagesCollection.search({}, {}, (err, result) => {
+    messagesCollection.search({}, {
+      from: 0,
+      to: 1000
+    }, (err, result) => {
       let messages = []
       result.getDocuments().forEach(function(document) {
         messages.push(document.content.message)
@@ -51,7 +54,7 @@ export default class App extends React.Component {
           console.error(err)
           return
         }
-        // this.setState({message: '', messages: [...this.state.messages, event.nativeEvent.text]})
+        this.setState({message: '', messages: [...this.state.messages, event.nativeEvent.text]})
       })
   }
 
