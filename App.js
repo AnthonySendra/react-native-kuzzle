@@ -49,12 +49,12 @@ export default class App extends React.Component {
 
   _onSubmit = (event) => {
     messagesCollection
-      .createDocument({message: event.nativeEvent.text}, (err, res) => {
+      .createDocument({message: this.state.message}, (err, res) => {
         if (err) {
           console.error(err)
           return
         }
-        this.setState({message: '', messages: [...this.state.messages, event.nativeEvent.text]})
+        this.setState({message: '', messages: [...this.state.messages, this.state.message]})
       })
   }
 
@@ -74,13 +74,11 @@ export default class App extends React.Component {
           tweenHandler={Drawer.tweenPresets.parallax}
           ref={(ref) => this._drawer = ref}
           tapToClose={true}
-          openDrawerOffset={0.5}
-          panCloseMask={0.2}
-          closedDrawerOffset={-3}
+          openDrawerOffset={100}
           content={<Text>Yolo</Text>}
         >
           <View style={styles.header}>
-            <Button title="Test" onPress={this._showMenu}/>
+            <Button title="Test" onPress={this._showMenu} style={styles.headerButton}/>
             <Text style={styles.headerText}>Chanel BLABLA</Text>
           </View>
           <View style={styles.containerList}>
@@ -112,9 +110,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
   },
   headerText: {
+    flex: 1,
     textAlign: 'center',
     color: '#fff',
     fontSize: 20
+  },
+  headerButton: {
+    flex: 1
   },
   container: {
     flex: 1,
