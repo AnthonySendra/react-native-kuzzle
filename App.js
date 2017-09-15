@@ -5,6 +5,7 @@ import Kuzzle from 'kuzzle-sdk/dist/kuzzle.js'
 import MessageList from './MessageList.js'
 import ChannelList from './ChannelList'
 import Header from './Header'
+import Icon from 'react-native-vector-icons/MaterialIcons'
 
 const kuzzle = new Kuzzle('10.34.50.59', {defaultIndex: 'foo'}, (err, res) => {
   if (err) {
@@ -24,13 +25,13 @@ export default class App extends React.Component {
       message: '',
       messages: [],
       channels: [],
-      channel: '#kuzzle'
+      channel: 'kuzzle'
     }
   }
 
   _listMessages = () => {
     messagesCollection
-      .search({ query: { term: { channel: this.state.channel.replace('#', '')} }, sort: [{ timestamp: 'asc' }] }, { size: 100 }, (err, result) => {
+      .search({ query: { term: { channel: this.state.channel} }, sort: [{ timestamp: 'asc' }] }, { size: 100 }, (err, result) => {
         let messages = []
         result.getDocuments().forEach(function(document) {
           messages.push(document.content.content)
@@ -48,7 +49,11 @@ export default class App extends React.Component {
       .search({ query: { terms: { type: ['public', 'restricted'] } } }, (err, result) => {
         let channels = []
         result.getDocuments().forEach(function(document) {
-          channels.push(document.id)
+          channels.push({
+            id: document.id,
+            label: document.content.label,
+            icon: document.content.icon
+          })
         })
 
         this.setState({channels})
@@ -73,8 +78,15 @@ export default class App extends React.Component {
   }
 
   _onSubmit = () => {
+    const message = {
+      userId: 'asendra@kaliop.com',
+      content: this.state.message,
+      timestamp: Date.now(),
+      channel: '#' + this.state.channel
+    }
+
     messagesCollection
-      .createDocument({message: this.state.message}, (err, res) => {
+      .createDocument(message, (err, res) => {
         if (err) {
           console.error(err)
           return
@@ -96,20 +108,23 @@ export default class App extends React.Component {
   }
 
   _selectChannel = (channel) => {
-    this.setState({channel})
-    this._listMessages()
-    this._drawer.close()
+    this.setState({channel: channel.replace('#', '')})
+    setTimeout(() => {
+      this._listMessages()
+      this._drawer.close()
+    }, 0)
   }
 
   render() {
     return (
       <KeyboardAvoidingView style={styles.container} behavior="padding">
         <Drawer
-          type="static"
-          tweenHandler={Drawer.tweenPresets.parallax}
+          type="overlay"
           ref={(ref) => this._drawer = ref}
           tapToClose={true}
-          openDrawerOffset={100}
+          openDrawerOffset={0.2}
+          panCloseMask={0.2}
+          closedDrawerOffset={-3}
           content={<ChannelList data={this.state.channels} onSelect={this._selectChannel} />}
         >
           <Header showMenu={this._showMenu} channel={this.state.channel}/>
@@ -145,9 +160,11 @@ const styles = StyleSheet.create({
   },
   input: {
     borderTopWidth: 2,
-    borderColor: "#eeeeee",
+    borderColor: '#424242',
+    backgroundColor: '#595959',
     height: 50,
-    paddingLeft: 5
+    paddingLeft: 10,
+    color: '#fff'
   },
   footer: {
     height: 50

@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet, Text, FlatList } from 'react-native'
+import { View, StyleSheet, Text, FlatList } from 'react-native'
 
 export default class MessageList extends React.Component {
   constructor(props) {
@@ -14,6 +14,7 @@ export default class MessageList extends React.Component {
   render() {
     return (
       <FlatList
+        style={styles.list}
         ref={(ref) => this._flatList = ref}
         data={this.props.data}
         renderItem={({item}) => <Text style={styles.item}>{item}</Text>}
@@ -29,5 +30,9 @@ const styles = StyleSheet.create({
     padding: 10,
     fontSize: 18,
     height: 44,
+    color: '#fff'
+  },
+  list: {
+    backgroundColor: '#424242'
   }
 });

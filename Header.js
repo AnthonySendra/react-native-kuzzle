@@ -1,6 +1,6 @@
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
-import Icon from 'react-native-vector-icons/Entypo'
+import Icon from 'react-native-vector-icons/MaterialIcons'
 
 export default class Header extends React.Component {
   constructor(props) {
@@ -10,7 +10,7 @@ export default class Header extends React.Component {
   render() {
     return (
       <View style={styles.header}>
-        <Icon name="menu" size={30} color="#4F8EF7" onPress={this.props.showMenu} style={styles.headerButton} />
+        <Icon name="menu" size={30} color="#fff" onPress={this.props.showMenu} style={styles.headerButton} />
         <Text style={styles.headerText}>Channel {this.props.channel}</Text>
       </View>
     )
@@ -19,7 +19,7 @@ export default class Header extends React.Component {
 
 const styles = StyleSheet.create({
   header: {
-    backgroundColor: 'black',
+    backgroundColor: '#9ccc65',
     flex: 0,
     height: 60,
     alignItems:'center',
