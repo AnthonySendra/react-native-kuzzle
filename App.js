@@ -52,7 +52,7 @@ export default class App extends React.Component {
           channels.push({
             id: document.id,
             label: document.content.label,
-            icon: document.content.icon
+            icon: document.content.icon.replace('default', 'forum')
           })
         })
 

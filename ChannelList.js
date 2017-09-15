@@ -1,6 +1,7 @@
 import React from 'react'
-import { View, StyleSheet, Text, FlatList } from 'react-native'
+import { Modal, View, StyleSheet, Text, FlatList } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialIcons'
+import ModalCreateChannel from './ModalCreateChannel'
 
 export default class ChannelList extends React.Component {
   constructor(props) {
@@ -23,6 +24,8 @@ export default class ChannelList extends React.Component {
             <Icon name="add-circle-outline" style={styles.iconCreateChannel} color="#757575"/> Create a channel
           </Text>
         </View>
+
+        <ModalCreateChannel />
       </View>
     )
   }
@@ -56,5 +59,18 @@ const styles = StyleSheet.create({
   },
   iconCreateChannel: {
     fontSize: 20
+  },
+  modalCreate: {
+    backgroundColor: '#424242',
+    flex: 1
+  },
+  modalCreateHeader: {
+    fontSize: 40,
+    paddingTop: 20,
+    textAlign: 'center',
+    color: '#fff'
+  },
+  buttons: {
+
   }
 });
