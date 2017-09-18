@@ -1,11 +1,27 @@
 import React from 'react'
-import { Modal, View, StyleSheet, Text, FlatList } from 'react-native'
+import { Modal, View, StyleSheet, Text, FlatList, TouchableOpacity } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import ModalCreateChannel from './ModalCreateChannel'
 
 export default class ChannelList extends React.Component {
   constructor(props) {
     super(props)
+    this.state = {
+      modalOpen: false
+    }
+  }
+
+  _openModal = () => {
+    this.setState({modalOpen: true})
+  }
+
+  _closeModal = () => {
+    this.setState({modalOpen: false})
+  }
+
+  _onSubmitChannel = (channelName) => {
+    this.props.onSubmitChannel(channelName)
+    this.setState({modalOpen: false})
   }
 
   render() {
@@ -14,18 +30,21 @@ export default class ChannelList extends React.Component {
         <View style={styles.list}>
           <FlatList
             data={this.props.data}
-            renderItem={({item}) => <Text onPress={() => this.props.onSelect(item.id)} style={styles.item}><Icon style={styles.icon} name={item.icon.replace('_', '-')} />   {item.label}</Text>}
+            renderItem={({item}) => <Text onPress={() => this.props.onSelectChannel(item.id)} style={styles.item}><Icon style={styles.icon} name={item.icon.replace('_', '-')} />   {item.label}</Text>}
             keyExtractor={(item, index) => index}
             getItemLayout={(data, index) => ({ length: 55, offset: 55 * index, index })}
           />
         </View>
-        <View style={styles.createChannel}>
-          <Text style={styles.createChannelText}>
-            <Icon name="add-circle-outline" style={styles.iconCreateChannel} color="#757575"/> Create a channel
-          </Text>
-        </View>
+        <TouchableOpacity onPress={this._openModal} style={styles.createChannel}>
+            <Text style={styles.createChannelText}>
+              <Icon name="add-circle-outline" style={styles.iconCreateChannel} color="#757575"/> Create a channel
+            </Text>
+        </TouchableOpacity>
 
-        <ModalCreateChannel />
+        <ModalCreateChannel
+          modalChannelOpen={this.state.modalOpen}
+          onSubmitChannel={this._onSubmitChannel}
+          closeModal={this._closeModal}/>
       </View>
     )
   }
@@ -45,12 +64,9 @@ const styles = StyleSheet.create({
   container: {
     paddingTop: 20,
     backgroundColor: '#424242',
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'space-between'
+    flex: 1
   },
   createChannel: {
-    flex: 1
   },
   createChannelText: {
     fontSize: 25,
@@ -69,8 +85,5 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     textAlign: 'center',
     color: '#fff'
-  },
-  buttons: {
-
   }
 });

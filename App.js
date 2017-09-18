@@ -5,7 +5,6 @@ import Kuzzle from 'kuzzle-sdk/dist/kuzzle.js'
 import MessageList from './MessageList.js'
 import ChannelList from './ChannelList'
 import Header from './Header'
-import Icon from 'react-native-vector-icons/MaterialIcons'
 
 const kuzzle = new Kuzzle('10.34.50.59', {defaultIndex: 'foo'}, (err, res) => {
   if (err) {
@@ -29,35 +28,8 @@ export default class App extends React.Component {
     }
   }
 
-  _listMessages = () => {
-    messagesCollection
-      .search({ query: { term: { channel: this.state.channel} }, sort: [{ timestamp: 'asc' }] }, { size: 100 }, (err, result) => {
-        let messages = []
-        result.getDocuments().forEach(function(document) {
-          messages.push(document.content.content)
-        })
-
-        this.setState({messages})
-        // setTimeout(() => {
-        //   this._flatList.scrollToEnd();
-        // }, 100)
-      })
-  }
-
-  _listChannels = () => {
-    channelsCollection
-      .search({ query: { terms: { type: ['public', 'restricted'] } } }, (err, result) => {
-        let channels = []
-        result.getDocuments().forEach(function(document) {
-          channels.push({
-            id: document.id,
-            label: document.content.label,
-            icon: document.content.icon.replace('default', 'forum')
-          })
-        })
-
-        this.setState({channels})
-      })
+  componentWillUnmount() {
+    room.unsubscribe()
   }
 
   componentDidMount() {
@@ -77,7 +49,35 @@ export default class App extends React.Component {
       })
   }
 
-  _onSubmit = () => {
+  _listMessages = () => {
+    messagesCollection
+      .search({ query: { term: { channel: this.state.channel} }, sort: [{ timestamp: 'asc' }] }, { size: 100 }, (err, result) => {
+        let messages = []
+        result.getDocuments().forEach(function(document) {
+          messages.push(document.content.content)
+        })
+
+        this.setState({messages})
+      })
+  }
+
+  _listChannels = () => {
+    channelsCollection
+      .search({ query: { terms: { type: ['public', 'restricted'] } } }, (err, result) => {
+        let channels = []
+        result.getDocuments().forEach(function(document) {
+          channels.push({
+            id: document.id,
+            label: document.content.label,
+            icon: document.content.icon.replace('default', 'forum')
+          })
+        })
+
+        this.setState({channels})
+      })
+  }
+
+  _onSubmitMessage = () => {
     const message = {
       userId: 'asendra@kaliop.com',
       content: this.state.message,
@@ -92,10 +92,24 @@ export default class App extends React.Component {
           return
         }
         this.setState({message: '', messages: [...this.state.messages, this.state.message]})
-        // this._flatList.scrollToIndex({
-        //   index: this.state.messages.length - 1,
-        //   animated: true
-        // });
+      })
+  }
+
+  _onSubmitChannel = (label) => {
+    const id = '#' + label
+    const channel = {
+      label,
+      type: 'public',
+      icon: 'forum'
+    }
+
+    channelsCollection
+      .createDocument(id, channel, (err, res) => {
+        if (err) {
+          console.error(err)
+          return
+        }
+        this.setState({channels: [...this.state.channels, {...channel, id}]})
       })
   }
 
@@ -103,11 +117,7 @@ export default class App extends React.Component {
     this._drawer.open()
   }
 
-  componentWillUnmount() {
-    room.unsubscribe()
-  }
-
-  _selectChannel = (channel) => {
+  _onSelectChannel = (channel) => {
     this.setState({channel: channel.replace('#', '')})
     setTimeout(() => {
       this._listMessages()
@@ -125,7 +135,11 @@ export default class App extends React.Component {
           openDrawerOffset={0.2}
           panCloseMask={0.2}
           closedDrawerOffset={-3}
-          content={<ChannelList data={this.state.channels} onSelect={this._selectChannel} />}
+          content={<ChannelList
+            data={this.state.channels}
+            onSubmitChannel={this._onSubmitChannel}
+            onSelectChannel={this._onSelectChannel} />
+          }
         >
           <Header showMenu={this._showMenu} channel={this.state.channel}/>
           <View style={styles.containerList}>
@@ -138,7 +152,7 @@ export default class App extends React.Component {
             <TextInput
               style={styles.input}
               placeholder="Write your message"
-              onSubmitEditing={this._onSubmit}
+              onSubmitEditing={this._onSubmitMessage}
               onChangeText={message => this.setState({message})}
               value={this.state.message}
               underlineColorAndroid="transparent"

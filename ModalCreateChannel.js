@@ -1,9 +1,18 @@
 import React from 'react'
-import { Modal, TextInput, View, StyleSheet, Text, Button } from 'react-native'
+import { Modal, TextInput, View, StyleSheet, Text } from 'react-native'
+import ButtonsModal from './ButtonsModal'
 
 export default class ModalCreateChannel extends React.Component {
   constructor(props) {
     super(props)
+    this.state = {
+      channelName: ''
+    }
+  }
+
+  _onSubmitChannel = () => {
+    this.props.onSubmitChannel(this.state.channelName)
+    this.setState({channelName: ''})
   }
 
   render() {
@@ -11,7 +20,7 @@ export default class ModalCreateChannel extends React.Component {
       <Modal
         animationType="slide"
         transparent={false}
-        visible={false}
+        visible={this.props.modalChannelOpen}
         onRequestClose={() => {}}
       >
         <View style={styles.container}>
@@ -21,15 +30,17 @@ export default class ModalCreateChannel extends React.Component {
           <View style={styles.content}>
             <TextInput
               style={styles.input}
-              placeholder="Title"
-              onSubmitEditing={this._onSubmit}
+              placeholder="Channel name"
+              onSubmitEditing={this._onSubmitChannel}
               underlineColorAndroid="transparent"
+              onChangeText={channelName => this.setState({channelName})}
+              value={this.state.channelName}
             />
           </View>
-          <View style={styles.buttons}>
-            <Button style={styles.button} onPress={() => {}} title="Create"></Button>
-            <Button style={styles.button} onPress={() => {}} title="Cancel"></Button>
-          </View>
+          <ButtonsModal
+            closeModal={this.props.closeModal}
+            onSubmitChannel={this._onSubmitChannel}
+          />
         </View>
       </Modal>
     )
@@ -42,9 +53,7 @@ const styles = StyleSheet.create({
     flex: 1
   },
   content: {
-    flex: 1,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flex: 1
   },
   header: {
     fontSize: 40,
@@ -52,11 +61,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#fff'
   },
-  buttons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between'
-  },
-  button: {
-    flex: 1
+  input: {
+    flex: 1,
+    fontSize: 40,
+    paddingLeft: 20,
+    color: '#fff'
   }
 });
