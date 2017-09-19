@@ -34,6 +34,7 @@ export default class MessageList extends React.Component {
 
 const styles = StyleSheet.create({
   list: {
+    paddingTop: 10,
     backgroundColor: '#424242'
   }
 });

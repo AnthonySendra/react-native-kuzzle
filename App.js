@@ -55,7 +55,7 @@ export default class App extends React.Component {
 
   _subscribeMessages = () => {
     messagesCollection
-      .subscribe({}, {subscribeToSelf: false, scope: 'in'}, (error, result) => {
+      .subscribe({}, {subscribeToSelf: true, scope: 'in'}, (error, result) => {
         if (result.document.content.event === 'typing' || result.document.content.event === 'bump') {
           return
         }
@@ -124,7 +124,8 @@ export default class App extends React.Component {
           console.error(err)
           return
         }
-        this.setState({message: '', messages: [...this.state.messages, this.state.message]})
+
+        this.setState({message: ''})
       })
   }
 
@@ -200,7 +201,7 @@ export default class App extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 22
+    paddingTop: 22,
   },
   containerList: {
     flex: 1
