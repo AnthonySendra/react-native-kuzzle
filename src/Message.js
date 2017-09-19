@@ -31,8 +31,8 @@ const styles = StyleSheet.create({
   },
   message: {
     paddingLeft: 10,
+    paddingBottom: 10,
     fontSize: 18,
-    height: 44,
     color: '#dcdcdc'
   },
   user: {

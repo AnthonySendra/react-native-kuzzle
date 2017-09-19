@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, StyleSheet, Text, FlatList } from 'react-native'
+import { StyleSheet, FlatList, Keyboard } from 'react-native'
 import Message from './Message'
 
 export default class MessageList extends React.Component {
@@ -7,9 +7,16 @@ export default class MessageList extends React.Component {
     super(props)
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    console.log('scrolling list to the end')
-    this._flatList.scrollToEnd()
+  componentDidMount() {
+    setTimeout(() => {
+      this._flatList.scrollToEnd()
+    }, 1000)
+  }
+
+  componentDidUpdate() {
+    setTimeout(() => {
+      this._flatList.scrollToEnd()
+    }, 0)
   }
 
   render() {
@@ -20,7 +27,6 @@ export default class MessageList extends React.Component {
         data={this.props.data}
         renderItem={({item}) => <Message data={item} />}
         keyExtractor={(item, index) => index}
-        getItemLayout={(data, index) => ({ length: 55, offset: 55 * index, index })}
       />
     )
   }

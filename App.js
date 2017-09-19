@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet, Text, View, FlatList, TextInput, KeyboardAvoidingView, Button } from 'react-native'
+import { StyleSheet, View, TextInput, KeyboardAvoidingView} from 'react-native'
 import Drawer from 'react-native-drawer'
 import Kuzzle from 'kuzzle-sdk/dist/kuzzle.js'
 import MessageList from './src/MessageList.js'
@@ -160,7 +160,7 @@ export default class App extends React.Component {
 
   render() {
     return (
-      <KeyboardAvoidingView style={styles.container} behavior="padding">
+      <KeyboardAvoidingView style={styles.container} behavior="padding" >
         <Drawer
           type="overlay"
           ref={(ref) => this._drawer = ref}
@@ -192,6 +192,7 @@ export default class App extends React.Component {
             />
           </View>
         </Drawer>
+        <View style={{ height: 10 }} />
       </KeyboardAvoidingView>
     );
   }
