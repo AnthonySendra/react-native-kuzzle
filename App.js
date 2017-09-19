@@ -1,11 +1,12 @@
 import React from 'react'
-import { StyleSheet, View, TextInput, KeyboardAvoidingView, Vibration} from 'react-native'
+import { StyleSheet, View, TextInput, KeyboardAvoidingView, Vibration, Alert} from 'react-native'
 import Drawer from 'react-native-drawer'
 import Kuzzle from 'kuzzle-sdk/dist/kuzzle.js'
 import MessageList from './src/MessageList.js'
 import ChannelList from './src/ChannelList'
 import Header from './src/Header'
 
+Kuzzle.prototype.bluebird = require('bluebird')
 const kuzzle = new Kuzzle('10.34.50.59', {defaultIndex: 'foo'}, (err, res) => {
   if (err) {
     console.error(err);
@@ -16,6 +17,7 @@ const kuzzle = new Kuzzle('10.34.50.59', {defaultIndex: 'foo'}, (err, res) => {
 const messagesCollection = kuzzle.collection('slack-messages')
 const usersCollection = kuzzle.collection('slack-users')
 const channelsCollection = kuzzle.collection('slack')
+const currentUser = 'asendra@kaliop.com'
 let room
 
 export default class App extends React.Component {
@@ -34,29 +36,60 @@ export default class App extends React.Component {
     room.unsubscribe()
   }
 
-  componentDidMount() {
-    this._listUsers()
-    this._listChannels()
-    this._listMessages()
-    this._subscribeMessages()
+  async componentDidMount() {
+    this._subscribeBump()
+    await this._listUsers()
+    await this._listChannels()
+    await this._listMessages()
+    await this._subscribeMessages()
   }
 
-  _listUsers = () => {
-    usersCollection
-      .search({}, {}, (err, result) => {
-        let users = {}
-        result.getDocuments().forEach(function(document) {
-          users[document.id] = document.content
-        })
+  _listUsers = async () => {
+    try {
+      const result = await usersCollection.searchPromise({}, {})
+      const users = {}
+      result.getDocuments().forEach(function(document) {
+        users[document.id] = document.content
+      })
 
-        this.setState({users})
+      this.setState({users})
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  _bump = (userId) => {
+    messagesCollection.publishMessage({
+      event: 'bump',
+      userId: currentUser,
+      bumping: userId,
+      back: true
+    })
+  }
+
+  _subscribeBump = () => {
+    const filter = {and: [{equals: {event: 'bump'}}, {equals: {bumping: currentUser}}]}
+    messagesCollection
+      .subscribe(filter, {subscribeToSelf: false, scope: 'in'}, (error, result) => {
+        Vibration.vibrate(200, true)
+        Alert.alert(
+          'Bumped!',
+          `${this.state.users[result.document.content.userId].nickname} bumped you`,
+          [
+            {text: `I'm an adult, cancel`, onPress: () => {}},
+            {text: 'Bump back!', onPress: () => this._bump(result.document.content.userId)}
+          ],
+          { cancelable: true })
       })
   }
 
   _subscribeMessages = () => {
     messagesCollection
       .subscribe({}, {subscribeToSelf: true, scope: 'in'}, (error, result) => {
-        if (result.document.content.event === 'typing' || result.document.content.event === 'bump') {
+        if (result.document.content.event === 'bump') {
+          return
+        }
+        if (result.document.content.event === 'typing') {
           return
         }
 
@@ -82,58 +115,65 @@ export default class App extends React.Component {
       })
   }
 
-  _listMessages = () => {
-    messagesCollection
-      .search({ query: { term: { channel: this.state.channel} }, sort: [{ timestamp: 'asc' }] }, { size: 100 }, (err, result) => {
-        let messages = []
-        result.getDocuments().forEach((document) => {
-          messages.push({
-            ...document.content,
-            ...this.state.users[document.content.userId]
-          })
-        })
+  _listMessages = async () => {
+    const query = {
+      query: {term: {channel: this.state.channel}},
+      sort: [{ timestamp: 'asc' }]
+    }
 
-        this.setState({messages})
+    try {
+      const result = await messagesCollection.searchPromise(query, { size: 100 })
+      const messages = []
+      result.getDocuments().forEach((document) => {
+        messages.push({
+          ...document.content,
+          ...this.state.users[document.content.userId]
+        })
       })
+
+      this.setState({messages})
+    } catch (err) {
+      console.error(err)
+    }
   }
 
-  _listChannels = () => {
-    channelsCollection
-      .search({ query: { terms: { type: ['public', 'restricted'] } } }, (err, result) => {
-        let channels = []
-        result.getDocuments().forEach((document) => {
-          channels.push({
-            id: document.id,
-            label: document.content.label,
-            icon: document.content.icon.replace('default', 'forum'),
-            unread: false
-          })
+  _listChannels = async () => {
+    const query = { query: { terms: { type: ['public', 'restricted'] } } }
+    try {
+      const result = await channelsCollection.searchPromise(query)
+      const channels = []
+      result.getDocuments().forEach((document) => {
+        channels.push({
+          id: document.id,
+          label: document.content.label,
+          icon: document.content.icon.replace('default', 'forum'),
+          unread: false
         })
-
-        this.setState({channels})
       })
+
+      this.setState({channels})
+    } catch (err) {
+      console.error(err)
+    }
   }
 
-  _onSubmitMessage = () => {
+  _onSubmitMessage = async () => {
     const message = {
-      userId: 'asendra@kaliop.com',
+      userId: currentUser,
       content: this.state.message,
       timestamp: Date.now(),
       channel: '#' + this.state.channel
     }
 
-    messagesCollection
-      .createDocument(message, (err, res) => {
-        if (err) {
-          console.error(err)
-          return
-        }
-
-        this.setState({message: ''})
-      })
+    try {
+      await messagesCollection.createDocumentPromise(message)
+      this.setState({message: ''})
+    } catch (err) {
+      console.error(err)
+    }
   }
 
-  _onSubmitChannel = (label) => {
+  _onSubmitChannel = async (label) => {
     const id = '#' + label
     const channel = {
       label,
@@ -141,14 +181,12 @@ export default class App extends React.Component {
       icon: 'forum'
     }
 
-    channelsCollection
-      .createDocument(id, channel, (err, res) => {
-        if (err) {
-          console.error(err)
-          return
-        }
-        this.setState({channels: [...this.state.channels, {...channel, id}]})
-      })
+    try {
+      await channelsCollection.createDocumentPromise(id, channel)
+      this.setState({channels: [...this.state.channels, {...channel, id}]})
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   _showMenu = () => {
@@ -156,7 +194,7 @@ export default class App extends React.Component {
   }
 
   _setChannelNotification = (channelId, unread) => {
-    let channels = this.state.channels.map(channelItem => {
+    const channels = this.state.channels.map(channelItem => {
       if (channelItem.id === channelId) {
         return {
           ...channelItem,
@@ -173,8 +211,8 @@ export default class App extends React.Component {
     this.setState({channel: channel.replace('#', '')})
     this._setChannelNotification(channel, false)
 
-    setTimeout(() => {
-      this._listMessages()
+    setTimeout(async () => {
+      await this._listMessages()
       this._drawer.close()
     }, 0)
   }
