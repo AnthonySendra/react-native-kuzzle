@@ -1,7 +1,8 @@
 import React from 'react'
-import { Modal, View, StyleSheet, Text, FlatList, TouchableOpacity } from 'react-native'
+import { View, StyleSheet, Text, FlatList, TouchableOpacity } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import ModalCreateChannel from './ModalCreateChannel'
+import NotificationUnread from './NotificationUnread'
 
 export default class ChannelList extends React.Component {
   constructor(props) {
@@ -30,7 +31,7 @@ export default class ChannelList extends React.Component {
         <View style={styles.list}>
           <FlatList
             data={this.props.data}
-            renderItem={({item}) => <Text onPress={() => this.props.onSelectChannel(item.id)} style={styles.item}><Icon style={styles.icon} name={item.icon.replace('_', '-')} />   {item.label}</Text>}
+            renderItem={({item}) => <Text onPress={() => this.props.onSelectChannel(item.id)} style={styles.item}><Icon style={styles.icon} name={item.icon.replace('_', '-')} />   {item.label} <NotificationUnread data={item}/></Text>}
             keyExtractor={(item, index) => index}
             getItemLayout={(data, index) => ({ length: 55, offset: 55 * index, index })}
           />
@@ -60,6 +61,9 @@ const styles = StyleSheet.create({
   },
   icon: {
     fontSize: 20
+  },
+  notification: {
+    color: '#cc273c'
   },
   container: {
     paddingTop: 20,

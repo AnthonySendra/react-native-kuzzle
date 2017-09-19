@@ -68,6 +68,8 @@ export default class App extends React.Component {
               ...this.state.users[result.document.content.userId]
             }
           ]})
+        } else {
+          this._setChannelNotification(result.document.content.channel, true)
         }
       })
       .onDone((err, roomObject) => {
@@ -102,7 +104,8 @@ export default class App extends React.Component {
           channels.push({
             id: document.id,
             label: document.content.label,
-            icon: document.content.icon.replace('default', 'forum')
+            icon: document.content.icon.replace('default', 'forum'),
+            unread: false
           })
         })
 
@@ -151,8 +154,24 @@ export default class App extends React.Component {
     this._drawer.open()
   }
 
+  _setChannelNotification = (channelId, unread) => {
+    let channels = this.state.channels.map(channelItem => {
+      if (channelItem.id === channelId) {
+        return {
+          ...channelItem,
+          unread
+        }
+      }
+      return channelItem
+    })
+
+    this.setState({channels})
+  }
+
   _onSelectChannel = (channel) => {
     this.setState({channel: channel.replace('#', '')})
+    this._setChannelNotification(channel, false)
+
     setTimeout(() => {
       this._listMessages()
       this._drawer.close()
