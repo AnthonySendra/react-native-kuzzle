@@ -2,9 +2,9 @@ import React from 'react'
 import { StyleSheet, Text, View, FlatList, TextInput, KeyboardAvoidingView, Button } from 'react-native'
 import Drawer from 'react-native-drawer'
 import Kuzzle from 'kuzzle-sdk/dist/kuzzle.js'
-import MessageList from './MessageList.js'
-import ChannelList from './ChannelList'
-import Header from './Header'
+import MessageList from './src/MessageList.js'
+import ChannelList from './src/ChannelList'
+import Header from './src/Header'
 
 const kuzzle = new Kuzzle('10.34.50.59', {defaultIndex: 'foo'}, (err, res) => {
   if (err) {
