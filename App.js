@@ -14,6 +14,7 @@ const kuzzle = new Kuzzle('10.34.50.59', {defaultIndex: 'foo'}, (err, res) => {
   }
 })
 const messagesCollection = kuzzle.collection('slack-messages')
+const usersCollection = kuzzle.collection('slack-users')
 const channelsCollection = kuzzle.collection('slack')
 let room
 
@@ -24,6 +25,7 @@ export default class App extends React.Component {
       message: '',
       messages: [],
       channels: [],
+      users: {},
       channel: 'kuzzle'
     }
   }
@@ -33,12 +35,40 @@ export default class App extends React.Component {
   }
 
   componentDidMount() {
+    this._listUsers()
     this._listChannels()
     this._listMessages()
+    this._subscribeMessages()
+  }
 
+  _listUsers = () => {
+    usersCollection
+      .search({}, {}, (err, result) => {
+        let users = {}
+        result.getDocuments().forEach(function(document) {
+          users[document.id] = document.content
+        })
+
+        this.setState({users})
+      })
+  }
+
+  _subscribeMessages = () => {
     messagesCollection
       .subscribe({}, {subscribeToSelf: false, scope: 'in'}, (error, result) => {
-        this.setState({messages: [...this.state.messages, result.document.content.message]})
+        if (result.document.content.event === 'typing' || result.document.content.event === 'bump') {
+          return
+        }
+
+        if (result.document.content.channel.replace('#', '') === this.state.channel) {
+          this.setState({messages: [
+            ...this.state.messages,
+            {
+              ...result.document.content,
+              ...this.state.users[result.document.content.userId]
+            }
+          ]})
+        }
       })
       .onDone((err, roomObject) => {
         if (err) {
@@ -53,8 +83,11 @@ export default class App extends React.Component {
     messagesCollection
       .search({ query: { term: { channel: this.state.channel} }, sort: [{ timestamp: 'asc' }] }, { size: 100 }, (err, result) => {
         let messages = []
-        result.getDocuments().forEach(function(document) {
-          messages.push(document.content.content)
+        result.getDocuments().forEach((document) => {
+          messages.push({
+            ...document.content,
+            ...this.state.users[document.content.userId]
+          })
         })
 
         this.setState({messages})
@@ -65,7 +98,7 @@ export default class App extends React.Component {
     channelsCollection
       .search({ query: { terms: { type: ['public', 'restricted'] } } }, (err, result) => {
         let channels = []
-        result.getDocuments().forEach(function(document) {
+        result.getDocuments().forEach((document) => {
           channels.push({
             id: document.id,
             label: document.content.label,
