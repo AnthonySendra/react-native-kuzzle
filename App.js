@@ -76,7 +76,7 @@ export default class App extends React.Component {
           'Bumped!',
           `${this.state.users[result.document.content.userId].nickname} bumped you`,
           [
-            {text: `I'm an adult, cancel`, onPress: () => {}},
+            {text: `I'm not a kid, cancel`, onPress: () => {}},
             {text: 'Bump back!', onPress: () => this._bump(result.document.content.userId)}
           ],
           { cancelable: true })
