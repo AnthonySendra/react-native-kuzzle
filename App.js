@@ -192,7 +192,6 @@ export default class App extends React.Component {
             />
           </View>
         </Drawer>
-        <View style={{ height: 10 }} />
       </KeyboardAvoidingView>
     );
   }
