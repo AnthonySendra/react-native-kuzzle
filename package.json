@@ -6,6 +6,7 @@
   "private": true,
   "main": "node_modules/expo/AppEntry.js",
   "dependencies": {
+    "bluebird": "^3.5.0",
     "expo": "^20.0.0",
     "kuzzle-sdk": "^5.0.7",
     "react": "16.0.0-alpha.12",

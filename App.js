@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet, View, TextInput, KeyboardAvoidingView} from 'react-native'
+import { StyleSheet, View, TextInput, KeyboardAvoidingView, Vibration} from 'react-native'
 import Drawer from 'react-native-drawer'
 import Kuzzle from 'kuzzle-sdk/dist/kuzzle.js'
 import MessageList from './src/MessageList.js'
@@ -69,6 +69,7 @@ export default class App extends React.Component {
             }
           ]})
         } else {
+          Vibration.vibrate(100, true)
           this._setChannelNotification(result.document.content.channel, true)
         }
       })
