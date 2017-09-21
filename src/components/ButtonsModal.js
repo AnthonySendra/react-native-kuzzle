@@ -7,14 +7,20 @@ export default class ButtonsModal extends React.Component {
   }
 
   render() {
+    let cancel
+
+    if (this.props.cancelLabel) {
+      cancel = <TouchableOpacity style={styles.button} onPress={this.props.onCancel}>
+        <Text style={styles.buttonText}>{this.props.cancelLabel}</Text>
+      </TouchableOpacity>
+    }
+
     return (
       <View style={styles.buttons}>
-        <TouchableOpacity style={styles.button} onPress={this.props.onSubmitChannel}>
-          <Text style={styles.buttonTextCancel}>CREATE</Text>
+        <TouchableOpacity style={styles.button} onPress={this.props.onAction}>
+          <Text style={styles.buttonTextCancel}>{this.props.actionLabel}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={this.props.closeModal}>
-          <Text style={styles.buttonText}>CANCEL</Text>
-        </TouchableOpacity>
+        {cancel}
       </View>
     )
   }

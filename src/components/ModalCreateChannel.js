@@ -38,8 +38,10 @@ export default class ModalCreateChannel extends React.Component {
             />
           </View>
           <ButtonsModal
-            closeModal={this.props.closeModal}
-            onSubmitChannel={this._onSubmitChannel}
+            onAction={this._onSubmitChannel}
+            actionLabel="CREATE"
+            onCancel={this.props.closeModal}
+            cancelLabel="CANCEL"
           />
         </View>
       </Modal>

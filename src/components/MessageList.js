@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet, FlatList, Keyboard } from 'react-native'
+import { StyleSheet, FlatList } from 'react-native'
 import Message from './Message'
 
 export default class MessageList extends React.Component {
@@ -10,13 +10,13 @@ export default class MessageList extends React.Component {
   componentDidMount() {
     setTimeout(() => {
       this._flatList.scrollToEnd()
-    }, 1000)
+    }, 500)
   }
 
   componentDidUpdate() {
     setTimeout(() => {
       this._flatList.scrollToEnd()
-    }, 0)
+    }, 200)
   }
 
   render() {
