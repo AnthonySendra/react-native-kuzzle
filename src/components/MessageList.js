@@ -20,12 +20,8 @@ export default class MessageList extends React.Component {
 
   componentDidUpdate() {
     setTimeout(() => {
-      if (!this.list) {
-        return
-      }
-
       this.list._root.scrollToEnd()
-    }, 200)
+    }, 0)
   }
 
   render() {
@@ -39,8 +35,8 @@ export default class MessageList extends React.Component {
               <Thumbnail source={{uri: item.avatar}} style={styles.thumbnail}/>
             </Left>
             <Body>
-            <Text >{item.nickname}</Text>
-            <Text note>{item.content}</Text>
+            <Text>{item.nickname}</Text>
+            <Text style={styles.message} note>{item.content}</Text>
             </Body>
           </ListItem>
         }>
@@ -51,7 +47,8 @@ export default class MessageList extends React.Component {
 
 const styles = StyleSheet.create({
   listItem: {
-    marginLeft: 0
+    marginLeft: 0,
+    borderBottomWidth: 0
   },
   thumbnail: {
     marginLeft: 10,
@@ -61,7 +58,8 @@ const styles = StyleSheet.create({
   nickname: {
     color: defaultStyles.primaryTextColor
   },
-  email: {
-    color: defaultStyles.ligtherTextColor
+  message: {
+    color: defaultStyles.ligtherTextColor,
+    fontSize: 16
   }
 });

@@ -3,6 +3,7 @@ import { View, StyleSheet, Text, FlatList, TouchableOpacity } from 'react-native
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import ModalCreateChannel from './ModalCreateChannel'
 import NotificationUnread from './NotificationUnread'
+import defaultStyles from '../styles'
 
 export default class ChannelList extends React.Component {
   constructor(props) {
@@ -54,34 +55,34 @@ export default class ChannelList extends React.Component {
 const styles = StyleSheet.create({
   item: {
     height: 44,
-    color: '#fff',
-    fontSize: 23,
+    color: defaultStyles.primaryTextColor,
+    fontSize: 18,
     paddingLeft: 10,
     marginBottom: 10,
   },
   icon: {
-    fontSize: 20
+    fontSize: 18
   },
   notification: {
     color: '#cc273c'
   },
   container: {
     paddingTop: 20,
-    backgroundColor: '#424242',
+    backgroundColor: defaultStyles.primaryBackgroundColor,
     flex: 1
   },
   createChannel: {
   },
   createChannelText: {
-    fontSize: 25,
+    fontSize: 18,
     paddingLeft: 5,
-    color: '#757575'
+    color: defaultStyles.ligtherTextColor
   },
   iconCreateChannel: {
-    fontSize: 20
+    fontSize: 18
   },
   modalCreate: {
-    backgroundColor: '#424242',
+    backgroundColor: defaultStyles.primaryBackgroundColor,
     flex: 1
   },
   modalCreateHeader: {

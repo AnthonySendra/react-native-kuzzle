@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { StyleSheet, TextInput, Vibration, Alert} from 'react-native'
-import { Drawer, Container, Content, Footer, FooterTab } from 'native-base'
+import { StyleSheet, Vibration, Alert} from 'react-native'
+import { Drawer, Input, Container, Content, Footer, FooterTab } from 'native-base'
 import MessageList from '../components/MessageList'
 import ChannelList from '../components/ChannelList'
 import Header from '../components/Header'
@@ -56,7 +56,7 @@ class Chat extends React.Component {
           ...this.state.messages,
           {
             ...result.document.content,
-            ...this.state.users[result.document.content.userId]
+            ...this.props.users[result.document.content.userId]
           }
         ]})
       } else {
@@ -192,14 +192,13 @@ class Chat extends React.Component {
 
           <Container>
             <MessageList
-              ref={(ref) => this._messageList = ref}
               data={this.state.messages}>
             </MessageList>
           </Container>
 
           <Footer style={styles.footer}>
             <FooterTab style={styles.footer}>
-              <TextInput
+              <Input
                 style={styles.input}
                 placeholder="Write your message"
                 onSubmitEditing={this._onSubmitMessage}
@@ -217,8 +216,9 @@ class Chat extends React.Component {
 
 const styles = StyleSheet.create({
   input: {
-    color: '#fff',
-    width: '100%'
+    color: defaultStyles.primaryTextColor,
+    width: '100%',
+    backgroundColor: defaultStyles.backgroundColor
   },
   footer: {
     borderColor: '#424242',

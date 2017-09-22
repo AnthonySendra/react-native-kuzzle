@@ -1,6 +1,7 @@
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialIcons'
+import defaultStyles from '../styles'
 
 export default class Header extends React.Component {
   constructor(props) {
@@ -19,7 +20,7 @@ export default class Header extends React.Component {
 
 const styles = StyleSheet.create({
   header: {
-    backgroundColor: '#9ccc65',
+    backgroundColor: defaultStyles.prymaryColor,
     flex: 0,
     height: 50,
     alignItems:'center',
