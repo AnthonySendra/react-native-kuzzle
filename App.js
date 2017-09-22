@@ -47,9 +47,27 @@ export default class App extends React.Component {
 
         <Router>
           <Scene key="root">
-            <Scene key="chat" component={Chat} title="chat" hideNavBar initial={true} store={store}/>
-            <Scene key="users" component={Users} title="users" hideNavBar store={store}/>
-            <Scene key="settings" component={Settings} title="settings" hideNavBar/>
+            <Scene
+              key="chat"
+              component={Chat}
+              title="chat"
+              hideNavBar
+              initial={true}
+              store={store}
+            />
+            <Scene
+              key="users"
+              component={Users}
+              title="users"
+              hideNavBar
+              store={store}
+            />
+            <Scene
+              key="settings"
+              component={Settings}
+              title="settings"
+              hideNavBar
+            />
           </Scene>
         </Router>
       </KeyboardAvoidingView>

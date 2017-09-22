@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { StyleSheet, Vibration, Alert} from 'react-native'
+import { StyleSheet, Vibration, Alert, Image} from 'react-native'
 import { Drawer, Input, Container, Content, Footer, FooterTab } from 'native-base'
 import MessageList from '../components/MessageList'
 import ChannelList from '../components/ChannelList'
@@ -9,6 +9,7 @@ import kuzzle from '../services/kuzzle'
 import { listUsersByIds } from '../reducers/users'
 import defaultStyles from '../styles'
 
+const logo = require('../../assets/icons/app-icon.png')
 const currentUser = 'asendra@kaliop.com'
 
 class Chat extends React.Component {
@@ -18,7 +19,6 @@ class Chat extends React.Component {
       message: '',
       messages: [],
       channels: [],
-      users: {},
       channel: 'kuzzle'
     }
   }
@@ -73,7 +73,7 @@ class Chat extends React.Component {
           id: result.document.id,
           label: result.document.content.label,
           icon: result.document.content.icon.replace('default', 'forum'),
-          unread: false
+          unread: 0
         }]
       })
     })
@@ -156,7 +156,7 @@ class Chat extends React.Component {
       if (channelItem.id === channelId) {
         return {
           ...channelItem,
-          unread
+          unread: channelItem.unread++
         }
       }
       return channelItem
@@ -216,13 +216,9 @@ class Chat extends React.Component {
 
 const styles = StyleSheet.create({
   input: {
-    color: defaultStyles.primaryTextColor,
-    width: '100%',
-    backgroundColor: defaultStyles.backgroundColor
   },
   footer: {
-    borderColor: '#424242',
-    backgroundColor: defaultStyles.backgroundColor,
+    backgroundColor: defaultStyles.primaryBackgroundColor,
     height: 50,
     paddingLeft: 10
   }

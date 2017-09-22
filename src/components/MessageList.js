@@ -8,27 +8,12 @@ export default class MessageList extends React.Component {
     super(props)
   }
 
-  componentDidMount() {
-    setTimeout(() => {
-      if (!this.list) {
-        return
-      }
-
-      this.list._root.scrollToEnd()
-    }, 500)
-  }
-
-  componentDidUpdate() {
-    setTimeout(() => {
-      this.list._root.scrollToEnd()
-    }, 0)
-  }
-
   render() {
     return (
       <List
         ref={(ref) => this.list = ref}
         dataArray={this.props.data}
+        onContentSizeChange={() => this.list._root.scrollToEnd()}
         renderRow={(item) =>
           <ListItem  avatar style={styles.listItem}>
             <Left>
