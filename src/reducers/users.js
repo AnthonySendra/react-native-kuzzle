@@ -1,22 +1,26 @@
 const initState = {
-  users: [
-    {
-      id: 'asendra@kaliop.com',
-      nickname: 'Anthony Sendra',
-      avatar: 'http://www.gravatar.com/avatar/d40525194061a31d1adb64bf8d0f5206?d=identicon'
-    },
-    {
-      id: 'sbouic@kaliop.com',
-      nickname: 'Jean Anderson',
-      avatar: 'https://randomuser.me/api/portraits/women/97.jpg'
-    }
-  ]
+  users: []
 }
+
+const USER_ADD = 'USER_ADD'
+const USERS_ADD = 'USERS_ADD'
+
+export const addUsers = (payload) => ({type: USERS_ADD, payload})
+
 export default (state = initState, action) => {
   switch (action.type) {
-    case 'USER_ADD':
-      return {...state, users: state.users.concat(action.payload)}
+    case USERS_ADD:
+      return {...state, users: [...state.users, ...action.payload]}
     default:
       return state
   }
+}
+
+export const listUsersByIds = (state) => {
+  const users = {}
+  state.users.forEach(user => {
+    users[user.id] = {...user}
+  })
+
+  return users
 }

@@ -1,8 +1,11 @@
 import Kuzzle from 'kuzzle-sdk/dist/kuzzle.js'
+import store from '../store'
+import {addUsers} from '../reducers/users'
 
 Kuzzle.prototype.bluebird = require('bluebird')
 let roomMessages
 let roomChannels
+let roomUsers
 
 class KuzzleWrapper {
   constructor () {
@@ -57,6 +60,12 @@ class KuzzleWrapper {
       })
   }
 
+  subscribeUsers () {
+    this.usersCollection.subscribe({}, {scope: 'in'}, (err, result) => {
+      store.dispatch(addUsers([{...result.document.content, id: result.document.id}]))
+    })
+  }
+
   bump (currentUser, userId) {
     this.messagesCollection.publishMessage({
       event: 'bump',
@@ -75,7 +84,13 @@ class KuzzleWrapper {
   }
 
   async listUsers () {
-    return this.usersCollection.searchPromise({}, {})
+    const result = await this.usersCollection.searchPromise({sort: [{ _uid: 'asc' }]}, {})
+    const users = []
+    result.getDocuments().forEach(function(document) {
+      users.push({...document.content, id: document.id})
+    })
+
+    store.dispatch(addUsers(users))
   }
 
   async listChannels () {
@@ -92,8 +107,12 @@ class KuzzleWrapper {
   }
 
   resetSubscribe () {
-    roomMessages.unsubscribe()
-    roomChannels.unsubscribe()
+    if (roomMessages) {
+      roomMessages.unsubscribe()
+    }
+    if (roomChannels) {
+      roomChannels.unsubscribe()
+    }
   }
 }
 

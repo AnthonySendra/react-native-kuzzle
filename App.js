@@ -3,11 +3,12 @@ import { Container, Header } from 'native-base'
 import { StyleSheet, View, StatusBar, KeyboardAvoidingView } from 'react-native'
 import { Font, AppLoading } from 'expo'
 import {Scene, Router} from 'react-native-router-flux'
-import Chat from './src/pages/Chat'
-import Users from './src/pages/Users'
-import Settings from './src/pages/Settings'
+import Chat from './src/containers/Chat'
+import Users from './src/containers/Users'
+import Settings from './src/containers/Settings'
 import MenuTabs from './src/components/MenuTabs'
 import ModalLoginRegister from './src/components/ModalLoginRegister/ModalLoginRegister'
+import kuzzle from './src/services/kuzzle'
 import store from './src/store'
 
 const currentUser = 'asendra@kaliop.com'
@@ -25,6 +26,8 @@ export default class App extends React.Component {
       'Roboto': require('native-base/Fonts/Roboto.ttf'),
       'Roboto_medium': require('native-base/Fonts/Roboto_medium.ttf'),
     })
+    await kuzzle.listUsers()
+    kuzzle.subscribeUsers()
 
     this.setState({appIsReady: true})
   }
@@ -44,8 +47,8 @@ export default class App extends React.Component {
 
         <Router>
           <Scene key="root">
-            <Scene key="chat" component={Chat} title="chat" hideNavBar initial={true} />
-            <Scene key="users" component={Users} title="users" hideNavBar users={store.getState().users}/>
+            <Scene key="chat" component={Chat} title="chat" hideNavBar initial={true} store={store}/>
+            <Scene key="users" component={Users} title="users" hideNavBar store={store}/>
             <Scene key="settings" component={Settings} title="settings" hideNavBar/>
           </Scene>
         </Router>
@@ -56,7 +59,7 @@ export default class App extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 1
   },
   statusBar: {
     height: StatusBar.currentHeight,

@@ -1,51 +1,35 @@
 import React from 'react'
-import { StyleSheet, FlatList } from 'react-native'
+import { connect } from 'react-redux'
+import { StyleSheet } from 'react-native'
 import { Container, Header, Content, List, ListItem, Left, Body, Right, Thumbnail, Text } from 'native-base'
 import defaultStyles from '../styles'
 
-export default class MessageList extends React.Component {
+const currentUser = 'asendra@kaliop.com'
+
+class Users extends React.Component {
   constructor(props) {
     super(props)
-  }
-
-  componentDidMount() {
-    setTimeout(() => {
-      if (!this.list) {
-        return
-      }
-
-      this.list._root.scrollToEnd()
-    }, 500)
-  }
-
-  componentDidUpdate() {
-    setTimeout(() => {
-      if (!this.list) {
-        return
-      }
-
-      this.list._root.scrollToEnd()
-    }, 200)
+    this.state = {
+    }
   }
 
   render() {
     return (
-      <List
-        ref={(ref) => this.list = ref}
-        dataArray={this.props.data}
-        renderRow={(item) =>
+        <List
+          dataArray={this.props.users}
+          renderRow={(item) =>
           <ListItem  avatar style={styles.listItem}>
             <Left>
               <Thumbnail source={{uri: item.avatar}} style={styles.thumbnail}/>
             </Left>
             <Body>
-            <Text >{item.nickname}</Text>
-            <Text note>{item.content}</Text>
+              <Text style={styles.nickname}>{item.nickname}</Text>
+              <Text style={styles.email} note>{item.id}</Text>
             </Body>
           </ListItem>
         }>
-      </List>
-    )
+        </List>
+    );
   }
 }
 
@@ -65,3 +49,11 @@ const styles = StyleSheet.create({
     color: defaultStyles.ligtherTextColor
   }
 });
+
+function mapStateToProps(state) {
+  return {
+    users: state.users
+  }
+}
+
+export default connect(mapStateToProps)(Users)

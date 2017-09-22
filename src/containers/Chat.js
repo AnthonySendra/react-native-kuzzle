@@ -1,14 +1,17 @@
 import React from 'react'
-import { StyleSheet, View, TextInput, Vibration, Alert} from 'react-native'
+import { connect } from 'react-redux'
+import { StyleSheet, TextInput, Vibration, Alert} from 'react-native'
 import { Drawer, Container, Content, Footer, FooterTab } from 'native-base'
 import MessageList from '../components/MessageList'
 import ChannelList from '../components/ChannelList'
 import Header from '../components/Header'
 import kuzzle from '../services/kuzzle'
+import { listUsersByIds } from '../reducers/users'
+import defaultStyles from '../styles'
 
 const currentUser = 'asendra@kaliop.com'
 
-export default class Chat extends React.Component {
+class Chat extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -26,25 +29,10 @@ export default class Chat extends React.Component {
 
   async componentDidMount() {
     this._subscribeBump()
-    await this._listUsers()
     await this._listChannels()
     await this._listMessages()
     this._subscribeMessages()
     this._subscribeChannels()
-  }
-
-  _listUsers = async () => {
-    try {
-      const result = await kuzzle.listUsers()
-      const users = {}
-      result.getDocuments().forEach(function(document) {
-        users[document.id] = document.content
-      })
-
-      this.setState({users})
-    } catch (err) {
-      console.error(err)
-    }
   }
 
   _subscribeBump = () => {
@@ -98,7 +86,7 @@ export default class Chat extends React.Component {
       result.getDocuments().forEach((document) => {
         messages.push({
           ...document.content,
-          ...this.state.users[document.content.userId]
+          ...this.props.users[document.content.userId]
         })
       })
 
@@ -234,8 +222,16 @@ const styles = StyleSheet.create({
   },
   footer: {
     borderColor: '#424242',
-    backgroundColor: '#595959',
+    backgroundColor: defaultStyles.backgroundColor,
     height: 50,
     paddingLeft: 10
   }
-});
+})
+
+function mapStateToProps(state) {
+  return {
+    users: listUsersByIds(state)
+  }
+}
+
+export default connect(mapStateToProps)(Chat)
