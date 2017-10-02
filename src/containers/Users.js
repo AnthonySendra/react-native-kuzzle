@@ -1,24 +1,43 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { StyleSheet } from 'react-native'
-import { Container, Header, Content, List, ListItem, Left, Body, Right, Thumbnail, Text } from 'native-base'
+import { Container, List, ListItem, Left, Body, Thumbnail, Text } from 'native-base'
 import defaultStyles from '../styles'
-
-const currentUser = 'asendra@kaliop.com'
+import {listUsers} from '../reducers/users'
+import ModalUserDetail from '../components/ModalUserDetail'
+import kuzzle from '../services/kuzzle'
 
 class Users extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
+      modalUserDetailOpen: false,
+      selectedUser: {}
     }
+  }
+
+  _closeModal = () => {
+    this.setState({modalUserDetailOpen: false})
+  }
+
+  _showUser = (user) => {
+    this.setState({
+      selectedUser: {...user},
+      modalUserDetailOpen: true
+    })
+  }
+
+  _bump = () => {
+    kuzzle.bump('asendra@kaliop.com', this.state.selectedUser.id)
   }
 
   render() {
     return (
+      <Container>
         <List
           dataArray={this.props.users}
           renderRow={(item) =>
-          <ListItem  avatar style={styles.listItem}>
+          <ListItem avatar onPress={() => this._showUser(item)} style={styles.listItem}>
             <Left>
               <Thumbnail source={{uri: item.avatar}} style={styles.thumbnail}/>
             </Left>
@@ -29,6 +48,13 @@ class Users extends React.Component {
           </ListItem>
         }>
         </List>
+
+        <ModalUserDetail
+          visible={this.state.modalUserDetailOpen}
+          closeModal={this._closeModal}
+          bump={this._bump}
+          user={this.state.selectedUser} />
+      </Container>
     );
   }
 }
@@ -52,7 +78,7 @@ const styles = StyleSheet.create({
 
 function mapStateToProps(state) {
   return {
-    users: state.users
+    users: listUsers(state)
   }
 }
 

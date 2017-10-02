@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { StyleSheet, Vibration, Alert, Image} from 'react-native'
+import { StyleSheet } from 'react-native'
 import { Drawer, Input, Container, Content, Footer, FooterTab } from 'native-base'
 import MessageList from '../components/MessageList'
 import ChannelList from '../components/ChannelList'
@@ -28,42 +28,9 @@ class Chat extends React.Component {
   }
 
   async componentDidMount() {
-    this._subscribeBump()
     await this._listChannels()
     await this._listMessages()
-    this._subscribeMessages()
     this._subscribeChannels()
-  }
-
-  _subscribeBump = () => {
-    kuzzle.subscribeBump(currentUser, (error, result) => {
-      Vibration.vibrate(200, true)
-      Alert.alert(
-        'Bumped!',
-        `${this.state.users[result.document.content.userId].nickname} bumped you`,
-        [
-          {text: `I'm not a kid, cancel`, onPress: () => {}},
-          {text: 'Bump back!', onPress: () => kuzzle.bump(currentUser, result.document.content.userId)}
-        ],
-        { cancelable: true })
-    })
-  }
-
-  _subscribeMessages = () => {
-    kuzzle.subscribeMessages((error, result) => {
-      if (result.document.content.channel.replace('#', '') === this.state.channel) {
-        this.setState({messages: [
-          ...this.state.messages,
-          {
-            ...result.document.content,
-            ...this.props.users[result.document.content.userId]
-          }
-        ]})
-      } else {
-        Vibration.vibrate(100, true)
-        this._setChannelNotification(result.document.content.channel, true)
-      }
-    })
   }
 
   _subscribeChannels = () => {

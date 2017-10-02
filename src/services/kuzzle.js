@@ -66,12 +66,12 @@ class KuzzleWrapper {
     })
   }
 
-  bump (currentUser, userId) {
+  bump (currentUser, userId, back = false) {
     this.messagesCollection.publishMessage({
       event: 'bump',
       userId: currentUser,
       bumping: userId,
-      back: true
+      back
     })
   }
 
@@ -104,6 +104,11 @@ class KuzzleWrapper {
 
   async createChannel (id, channel) {
     return this.channelsCollection.createDocumentPromise(id, channel)
+  }
+
+  async updateUser (id, user) {
+
+    return this.usersCollection.updateDocument(id, {...user})
   }
 
   resetSubscribe () {

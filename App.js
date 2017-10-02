@@ -1,6 +1,6 @@
 import React from 'react'
 import { Container, Header } from 'native-base'
-import { StyleSheet, View, StatusBar, KeyboardAvoidingView } from 'react-native'
+import { StyleSheet, View, StatusBar, KeyboardAvoidingView, Alert, Vibration } from 'react-native'
 import { Font, AppLoading } from 'expo'
 import {Scene, Router} from 'react-native-router-flux'
 import Chat from './src/containers/Chat'
@@ -10,6 +10,7 @@ import MenuTabs from './src/components/MenuTabs'
 import ModalLoginRegister from './src/components/ModalLoginRegister/ModalLoginRegister'
 import kuzzle from './src/services/kuzzle'
 import store from './src/store'
+import {listUsersByIds} from './src/reducers/users'
 
 const currentUser = 'asendra@kaliop.com'
 
@@ -27,9 +28,26 @@ export default class App extends React.Component {
       'Roboto_medium': require('native-base/Fonts/Roboto_medium.ttf'),
     })
     await kuzzle.listUsers()
+    this._subscribeBump()
     kuzzle.subscribeUsers()
 
     this.setState({appIsReady: true})
+  }
+
+  _subscribeBump = () => {
+    const users = listUsersByIds(store.getState())
+
+    kuzzle.subscribeBump(currentUser, (error, result) => {
+      Vibration.vibrate(200, true)
+      Alert.alert(
+        'Bumped!',
+        `${users[result.document.content.userId].nickname} bumped you`,
+        [
+          {text: `I'm not a kid, cancel`, onPress: () => {}},
+          {text: 'Bump back!', onPress: () => kuzzle.bump(currentUser, result.document.content.userId, true)}
+        ],
+        { cancelable: true })
+    })
   }
 
   render() {
@@ -67,6 +85,7 @@ export default class App extends React.Component {
               component={Settings}
               title="settings"
               hideNavBar
+              store={store}
             />
           </Scene>
         </Router>
