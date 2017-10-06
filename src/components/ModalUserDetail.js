@@ -55,7 +55,7 @@ export default class ModalUserDetail extends React.Component {
             </Content>
 
             <View style={styles.buttons}>
-              <TouchableOpacity style={styles.button}>
+              <TouchableOpacity style={styles.button} onPress={this.props.chat}>
                 <Text style={styles.buttonText}>CHAT <Icon style={styles.icon} name="chat" /></Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.button} onPress={this.props.bump}>
@@ -103,10 +103,10 @@ const styles = StyleSheet.create({
   quote: {
     borderLeftWidth: 5,
     borderColor: '#1976d2',
-    fontSize: 30,
+    fontSize: 25,
     fontStyle: 'italic',
     paddingLeft: 20,
-    fontWeight: '100'
+    fontWeight: 'normal'
   },
   buttons: {
     flexDirection: 'row',

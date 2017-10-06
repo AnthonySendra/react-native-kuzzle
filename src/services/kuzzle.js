@@ -1,11 +1,10 @@
 import Kuzzle from 'kuzzle-sdk/dist/kuzzle.js'
 import store from '../store'
 import {addUsers} from '../reducers/users'
+import {addChannels, addPrivateChannels} from '../reducers/channels'
 
 Kuzzle.prototype.bluebird = require('bluebird')
-let roomMessages
-let roomChannels
-let roomUsers
+let rooms = []
 
 class KuzzleWrapper {
   constructor () {
@@ -21,8 +20,9 @@ class KuzzleWrapper {
     this.channelsCollection = this.kuzzle.collection('slack')
   }
 
-  subscribeBump (currentUser, cb) {
-    const filter = {and: [{equals: {event: 'bump'}}, {equals: {bumping: currentUser}}]}
+  subscribeBump (cb) {
+    const currentUserId = store.getState().users.current.id
+    const filter = {and: [{equals: {event: 'bump'}}, {equals: {bumping: currentUserId}}]}
     this.messagesCollection
       .subscribe(filter, {subscribeToSelf: false, scope: 'in'}, (err, result) => cb(err, result))
   }
@@ -37,26 +37,29 @@ class KuzzleWrapper {
           return
         }
 
-        cb(err, result)
+        if (cb) {
+          cb(err, result)
+        }
       })
       .onDone((err, roomObject) => {
         if (err) {
           console.error(err)
           return;
         }
-        roomMessages = roomObject
+        rooms.push(roomObject)
       })
   }
 
-  subscribeChannels (cb) {
+  subscribeChannels () {
     this.channelsCollection
-      .subscribe({}, {subscribeToSelf: false, scope: 'in'}, (err, result) => cb(err, result))
+      .subscribe({}, {subscribeToSelf: true, scope: 'in'}, (err, result) => storeChannels(result))
       .onDone((err, roomObject) => {
         if (err) {
           console.error(err)
           return;
         }
-        roomChannels = roomObject
+
+        rooms.push(roomObject)
       })
   }
 
@@ -66,10 +69,11 @@ class KuzzleWrapper {
     })
   }
 
-  bump (currentUser, userId, back = false) {
+  bump (userId, back = false) {
+    const currentUserId = store.getState().users.current.id
     this.messagesCollection.publishMessage({
       event: 'bump',
-      userId: currentUser,
+      userId: currentUserId,
       bumping: userId,
       back
     })
@@ -77,15 +81,16 @@ class KuzzleWrapper {
 
   async listMessages (channel) {
     const query = {
-      query: {term: {channel}},
+      query: {bool:{should:[{bool:{must:[{match_phrase_prefix: {channel: channel.replace('#', '')}}]}}]}},
       sort: [{ timestamp: 'asc' }]
     }
-    return this.messagesCollection.searchPromise(query, { size: 100 })
+    return this.messagesCollection.searchPromise(query, { size: 10 })
   }
 
   async listUsers () {
     const result = await this.usersCollection.searchPromise({sort: [{ _uid: 'asc' }]}, {})
     const users = []
+
     result.getDocuments().forEach(function(document) {
       users.push({...document.content, id: document.id})
     })
@@ -95,29 +100,75 @@ class KuzzleWrapper {
 
   async listChannels () {
     const query = { query: { terms: { type: ['public', 'restricted'] } } }
-    return this.channelsCollection.searchPromise(query)
+    const result = await this.channelsCollection.searchPromise(query, { size: 100 })
+    const channels = []
+
+    result.getDocuments().forEach(function(document) {
+      channels.push({...document.content, id: document.id})
+    })
+
+    store.dispatch(addChannels(channels))
+  }
+
+  async listPrivateChannels () {
+    const query = { query: { bool: { should: [{ bool: { must: [{ match_phrase_prefix: { 'users': store.getState().users.current.id } }, { match_phrase_prefix: { type: 'private' } }] } }] } } }
+
+    const result = await this.channelsCollection.searchPromise(query)
+    const privateChannels = []
+
+    result.getDocuments().forEach(function(document) {
+      privateChannels.push({...document.content, id: document.id})
+    })
+
+    store.dispatch(addPrivateChannels(privateChannels))
   }
 
   async createMessage (message) {
     return this.messagesCollection.createDocumentPromise(message)
   }
 
-  async createChannel (id, channel) {
-    return this.channelsCollection.createDocumentPromise(id, channel)
+  async createChannel (label, userId = null) {
+    let id = null
+    if (!userId) {
+      id = '#' + label
+    }
+
+    const channel = {
+      label,
+      type: userId ? 'private' : 'public',
+      icon: userId ? 'end2end' : 'forum'
+    }
+
+    if (userId) {
+      channel.users = [store.getState().users.current.id, userId]
+    }
+
+    return await this.channelsCollection.createDocumentPromise(id, channel)
   }
 
-  async updateUser (id, user) {
+  async updateUser () {
+    const currentUser = {...store.getState().users.current}
+    delete currentUser.id
 
-    return this.usersCollection.updateDocument(id, {...user})
+    return this.usersCollection.updateDocument(store.getState().users.current.id, {...currentUser})
   }
 
   resetSubscribe () {
-    if (roomMessages) {
-      roomMessages.unsubscribe()
-    }
-    if (roomChannels) {
-      roomChannels.unsubscribe()
-    }
+    rooms.forEach(room => room.unsubscribe())
+  }
+}
+
+function storeChannels (result) {
+  const channel = {
+    ...result.document.content,
+    id: result.document.id,
+    unread: false
+  }
+
+  if (channel.type === 'private') {
+    store.dispatch(addPrivateChannels([channel]))
+  } else {
+    store.dispatch(addChannels([channel]))
   }
 }
 

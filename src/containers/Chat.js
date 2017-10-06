@@ -7,19 +7,15 @@ import ChannelList from '../components/ChannelList'
 import Header from '../components/Header'
 import kuzzle from '../services/kuzzle'
 import { listUsersByIds } from '../reducers/users'
+import { selectChannel, listChannel, listPrivateChannel } from '../reducers/channels'
 import defaultStyles from '../styles'
-
-const logo = require('../../assets/icons/app-icon.png')
-const currentUser = 'asendra@kaliop.com'
 
 class Chat extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
       message: '',
-      messages: [],
-      channels: [],
-      channel: 'kuzzle'
+      messages: []
     }
   }
 
@@ -28,27 +24,16 @@ class Chat extends React.Component {
   }
 
   async componentDidMount() {
-    await this._listChannels()
     await this._listMessages()
-    this._subscribeChannels()
-  }
-
-  _subscribeChannels = () => {
-    kuzzle.subscribeChannels((error, result) => {
-      this.setState({
-        channels: [...this.state.channels, {
-          id: result.document.id,
-          label: result.document.content.label,
-          icon: result.document.content.icon.replace('default', 'forum'),
-          unread: 0
-        }]
-      })
+    await kuzzle.subscribeChannels()
+    await kuzzle.subscribeMessages((err, result) => {
+      console.log(result)
     })
   }
 
   _listMessages = async () => {
     try {
-      const result = await kuzzle.listMessages(this.state.channel)
+      const result = await kuzzle.listMessages(this.props.currentChannel.id)
       const messages = []
       result.getDocuments().forEach((document) => {
         messages.push({
@@ -63,31 +48,12 @@ class Chat extends React.Component {
     }
   }
 
-  _listChannels = async () => {
-    try {
-      const result = await kuzzle.listChannels()
-      const channels = []
-      result.getDocuments().forEach((document) => {
-        channels.push({
-          id: document.id,
-          label: document.content.label,
-          icon: document.content.icon.replace('default', 'forum'),
-          unread: false
-        })
-      })
-
-      this.setState({channels})
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
   _onSubmitMessage = async () => {
     const message = {
-      userId: currentUser,
+      userId: this.props.currentUser.id,
       content: this.state.message,
       timestamp: Date.now(),
-      channel: '#' + this.state.channel
+      channel: '#' + this.props.currentChannel.id
     }
 
     try {
@@ -99,16 +65,8 @@ class Chat extends React.Component {
   }
 
   _onSubmitChannel = async (label) => {
-    const id = '#' + label
-    const channel = {
-      label,
-      type: 'public',
-      icon: 'forum'
-    }
-
     try {
-      await kuzzle.createChannel(id, channel)
-      this.setState({channels: [...this.state.channels, {...channel, id}]})
+      await kuzzle.createChannel(label)
     } catch (err) {
       console.error(err)
     }
@@ -118,23 +76,8 @@ class Chat extends React.Component {
     this.drawer._root.open()
   }
 
-  _setChannelNotification = (channelId, unread) => {
-    const channels = this.state.channels.map(channelItem => {
-      if (channelItem.id === channelId) {
-        return {
-          ...channelItem,
-          unread: channelItem.unread++
-        }
-      }
-      return channelItem
-    })
-
-    this.setState({channels})
-  }
-
-  _onSelectChannel = (channel) => {
-    this.setState({channel: channel.replace('#', '')})
-    this._setChannelNotification(channel, false)
+  _onSelectChannel = (id, label) => {
+    this.props.store.dispatch(selectChannel({id, label}))
 
     setTimeout(async () => {
       await this._listMessages()
@@ -145,17 +88,17 @@ class Chat extends React.Component {
   render() {
     return (
       <Container>
-
         <Drawer
           ref={(ref) => this.drawer = ref}
           content={<ChannelList
-            data={this.state.channels}
+            channels={this.props.channels}
+            privateChannels={this.props.privateChannels}
             onSubmitChannel={this._onSubmitChannel}
             onSelectChannel={this._onSelectChannel} />
           }
         >
 
-          <Header showMenu={this._showMenu} channel={this.state.channel}/>
+          <Header showMenu={this._showMenu} channel={this.props.currentChannel.label}/>
 
           <Container>
             <MessageList
@@ -193,7 +136,11 @@ const styles = StyleSheet.create({
 
 function mapStateToProps(state) {
   return {
-    users: listUsersByIds(state)
+    users: listUsersByIds(state.users),
+    currentUser: state.users.current,
+    channels: listChannel(state.channels),
+    privateChannels: listPrivateChannel(state.channels, state.users.current.id, listUsersByIds(state.users)),
+    currentChannel: state.channels.current
   }
 }
 

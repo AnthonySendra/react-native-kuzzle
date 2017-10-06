@@ -1,9 +1,11 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { StyleSheet } from 'react-native'
+import {Actions} from 'react-native-router-flux'
 import { Container, List, ListItem, Left, Body, Thumbnail, Text } from 'native-base'
 import defaultStyles from '../styles'
-import {listUsers} from '../reducers/users'
+import {listUsers, listUsersByIds} from '../reducers/users'
+import {listPrivateChannel, selectChannel} from '../reducers/channels'
 import ModalUserDetail from '../components/ModalUserDetail'
 import kuzzle from '../services/kuzzle'
 
@@ -27,8 +29,21 @@ class Users extends React.Component {
     })
   }
 
+  _chat = async () => {
+    const channelAlreadyExists = this.props.privateChannels
+      .some(channel => channel.label === this.state.selectedUser.nickname)
+
+    // TODO: if channelAlreadyExists
+    if (!channelAlreadyExists) {
+      const result = await kuzzle.createChannel('', this.state.selectedUser.id)
+      this.props.store.dispatch(selectChannel({id: result.id, label: this.state.selectedUser.nickname}))
+      Actions.chat()
+      this.setState({modalUserDetailOpen: false})
+    }
+  }
+
   _bump = () => {
-    kuzzle.bump('asendra@kaliop.com', this.state.selectedUser.id)
+    kuzzle.bump(this.state.selectedUser.id)
   }
 
   render() {
@@ -53,6 +68,7 @@ class Users extends React.Component {
           visible={this.state.modalUserDetailOpen}
           closeModal={this._closeModal}
           bump={this._bump}
+          chat={this._chat}
           user={this.state.selectedUser} />
       </Container>
     );
@@ -78,7 +94,8 @@ const styles = StyleSheet.create({
 
 function mapStateToProps(state) {
   return {
-    users: listUsers(state)
+    users: listUsers(state.users),
+    privateChannels: listPrivateChannel(state.channels, state.users.current.id, listUsersByIds(state.users)),
   }
 }
 

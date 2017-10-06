@@ -1,6 +1,6 @@
 import React from 'react'
-import { StyleSheet, FlatList } from 'react-native'
-import { Container, Header, Content, List, ListItem, Left, Body, Right, Thumbnail, Text } from 'native-base'
+import { StyleSheet } from 'react-native'
+import { Container, Header, Content, List, ListItem, Left, Body, Right, Thumbnail, Text, Card, CardItem } from 'native-base'
 import defaultStyles from '../styles'
 
 export default class MessageList extends React.Component {
@@ -9,6 +9,21 @@ export default class MessageList extends React.Component {
   }
 
   render() {
+    if (!this.props.data.length) {
+      return (
+        <Container>
+          <Content>
+            <Card >
+              <CardItem>
+                <Body >
+                <Text>This discussion is empty, try saying something nice!</Text>
+                </Body>
+              </CardItem>
+            </Card>
+          </Content>
+        </Container>)
+    }
+
     return (
       <List
         ref={(ref) => this.list = ref}
@@ -20,8 +35,8 @@ export default class MessageList extends React.Component {
               <Thumbnail source={{uri: item.avatar}} style={styles.thumbnail}/>
             </Left>
             <Body>
-            <Text>{item.nickname}</Text>
-            <Text style={styles.message} note>{item.content}</Text>
+              <Text>{item.nickname}</Text>
+              <Text style={styles.message} note>{item.content}</Text>
             </Body>
           </ListItem>
         }>
@@ -46,5 +61,8 @@ const styles = StyleSheet.create({
   message: {
     color: defaultStyles.ligtherTextColor,
     fontSize: 16
+  },
+  emptyCard: {
+    height: 50
   }
 });

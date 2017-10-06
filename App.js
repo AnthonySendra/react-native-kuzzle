@@ -12,8 +12,6 @@ import kuzzle from './src/services/kuzzle'
 import store from './src/store'
 import {listUsersByIds} from './src/reducers/users'
 
-const currentUser = 'asendra@kaliop.com'
-
 export default class App extends React.Component {
   constructor(props) {
     super(props)
@@ -28,23 +26,27 @@ export default class App extends React.Component {
       'Roboto_medium': require('native-base/Fonts/Roboto_medium.ttf'),
     })
     await kuzzle.listUsers()
-    this._subscribeBump()
+    await kuzzle.listChannels()
+    await kuzzle.listPrivateChannels()
+    await kuzzle.subscribeMessages()
+
     kuzzle.subscribeUsers()
+    this._subscribeBump()
 
     this.setState({appIsReady: true})
   }
 
   _subscribeBump = () => {
-    const users = listUsersByIds(store.getState())
+    const users = listUsersByIds(store.getState().users)
 
-    kuzzle.subscribeBump(currentUser, (error, result) => {
+    kuzzle.subscribeBump((error, result) => {
       Vibration.vibrate(200, true)
       Alert.alert(
         'Bumped!',
         `${users[result.document.content.userId].nickname} bumped you`,
         [
           {text: `I'm not a kid, cancel`, onPress: () => {}},
-          {text: 'Bump back!', onPress: () => kuzzle.bump(currentUser, result.document.content.userId, true)}
+          {text: 'Bump back!', onPress: () => kuzzle.bump(result.document.content.userId, true)}
         ],
         { cancelable: true })
     })
@@ -60,8 +62,6 @@ export default class App extends React.Component {
         <View style={styles.statusBar} />
 
         <ModalLoginRegister />
-
-        <MenuTabs />
 
         <Router>
           <Scene key="root">
@@ -89,6 +89,8 @@ export default class App extends React.Component {
             />
           </Scene>
         </Router>
+
+        <MenuTabs />
       </KeyboardAvoidingView>
     )
   }

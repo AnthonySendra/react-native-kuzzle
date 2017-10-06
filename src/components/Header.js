@@ -12,7 +12,7 @@ export default class Header extends React.Component {
     return (
       <View style={styles.header}>
         <Icon name="menu" size={30} color="#fff" onPress={this.props.showMenu} style={styles.headerButton} />
-        <Text style={styles.headerText}>Channel {this.props.channel}</Text>
+        <Text style={styles.headerText}>{this.props.channel}</Text>
       </View>
     )
   }
