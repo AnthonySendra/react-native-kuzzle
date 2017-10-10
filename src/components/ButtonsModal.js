@@ -39,12 +39,12 @@ const styles = StyleSheet.create({
   },
   buttonTextCancel: {
     textAlign: 'center',
-    color: '#ff9800',
+    color: '#4caf50',
     fontSize: 20
   },
   buttonText: {
     textAlign: 'center',
-    color: '#4caf50',
+    color: '#ff9800',
     fontSize: 20
   }
 });

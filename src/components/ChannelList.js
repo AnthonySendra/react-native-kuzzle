@@ -63,7 +63,7 @@ export default class ChannelList extends React.Component {
         />
 
         <Fab
-          active={true} direction="up"
+          active={true}
           style={styles.fab}
           position="bottomRight"
           onPress={() => this._openModal()}>

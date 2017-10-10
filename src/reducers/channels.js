@@ -30,7 +30,7 @@ export default (state = initState, action) => {
 
 export const listChannel = (state) => {
   return state.list.sort((a, b) => {
-    return a.label > b.label
+    return a.label.localeCompare(b.label)
   })
 }
 
@@ -46,6 +46,6 @@ export const listPrivateChannel = (state, currentUserId, usersById) => {
       }
     })
     .sort((a, b) => {
-      return a.label > b.label
+      return a.label.localeCompare(b.label)
     })
 }

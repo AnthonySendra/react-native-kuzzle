@@ -11,7 +11,9 @@ export default class MessageList extends React.Component {
   componentDidMount() {
     Keyboard.addListener('keyboardDidShow', () => {
       setTimeout(() => {
-        this.list._root.scrollToEnd()
+        if (this.list) {
+          this.list._root.scrollToEnd()
+        }
       }, 100)
     })
   }

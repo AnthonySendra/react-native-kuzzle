@@ -1,5 +1,7 @@
 import React from 'react'
-import { Modal, TextInput, View, StyleSheet, Text } from 'react-native'
+import { Modal, StyleSheet, Text, TouchableOpacity } from 'react-native'
+import {Container, Content, Header, Form, Item, Input, Body, Left, Label } from 'native-base'
+import Icon from 'react-native-vector-icons/MaterialIcons'
 import ButtonsModal from './ButtonsModal'
 import defaultStyles from '../styles'
 
@@ -18,56 +20,62 @@ export default class ModalCreateChannel extends React.Component {
 
   render() {
     return (
-      <Modal
-        animationType="slide"
-        transparent={false}
-        visible={this.props.modalChannelOpen}
-        onRequestClose={() => {}}
-      >
-        <View style={styles.container}>
-          <View>
-            <Text style={styles.header}>New Channel</Text>
-          </View>
-          <View style={styles.content}>
-            <TextInput
-              style={styles.input}
-              placeholder="Channel name"
-              onSubmitEditing={this._onSubmitChannel}
-              underlineColorAndroid="transparent"
-              onChangeText={channelName => this.setState({channelName})}
-              value={this.state.channelName}
-            />
-          </View>
-          <ButtonsModal
-            onAction={this._onSubmitChannel}
-            actionLabel="CREATE"
-            onCancel={this.props.closeModal}
-            cancelLabel="CANCEL"
-          />
-        </View>
-      </Modal>
+      <Container>
+        <Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.props.modalChannelOpen}
+          onRequestClose={() => {}}
+        >
+          <Container>
+            <Content>
+              <Header style={styles.header}>
+                <Left>
+                  <TouchableOpacity onPress={this.props.closeModal}>
+                    <Icon name="clear" style={styles.cancel}/>
+                  </TouchableOpacity>
+                </Left>
+                <Body>
+                  <Text style={styles.headerText}>New Channel</Text>
+                </Body>
+              </Header>
+
+              <Form>
+                <Item floatingLabel>
+                  <Label>Channel name</Label>
+                  <Input
+                    value={this.state.channelName}
+                    onChangeText={channelName => this.setState({channelName})}
+                  />
+                </Item>
+              </Form>
+            </Content>
+
+            <ButtonsModal
+              onAction={this._onSubmitChannel}
+              actionLabel="CREATE"
+              onCancel={this.props.closeModal}
+              cancelLabel="CANCEL"
+              />
+          </Container>
+        </Modal>
+      </Container>
     )
   }
 }
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: defaultStyles.primaryBackgroundColor,
-    flex: 1
-  },
-  content: {
-    flex: 1
-  },
   header: {
-    fontSize: 40,
-    paddingTop: 20,
-    textAlign: 'center',
-    color: defaultStyles.primaryTextColor
+    backgroundColor: defaultStyles.prymaryColor,
+    height: 70
+  },
+  headerText: {
+    color: '#fff',
+    fontSize: 30
   },
   input: {
-    flex: 1,
-    fontSize: 40,
-    paddingLeft: 20,
-    color: '#fff'
+  },
+  cancel: {
+    fontSize: 20
   }
 });

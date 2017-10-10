@@ -26,6 +26,7 @@ class Chat extends React.Component {
   async componentDidMount() {
     await this._listMessages()
     kuzzle.subscribeMessages((err, result) => {
+      console.log(result.document.content.channel, this.props.currentChannel.id)
       if (result.document.content.channel === this.props.currentChannel.id) {
         this.setState({
           messages: [...this.state.messages, {
@@ -59,7 +60,7 @@ class Chat extends React.Component {
       userId: this.props.currentUser.id,
       content: this.state.message,
       timestamp: Date.now(),
-      channel: '#' + this.props.currentChannel.id
+      channel: this.props.currentChannel.id
     }
 
     try {

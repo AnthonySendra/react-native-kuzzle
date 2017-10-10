@@ -45,7 +45,7 @@ export default class ModalUserDetail extends React.Component {
                 </Body>
               </Header>
 
-              <Body style={styles.userInfo}>
+              <Body style={styles.body}>
                 <Thumbnail source={{uri: this.props.user.avatar}} style={styles.thumbnail}/>
                 <Text style={styles.nickname}>{this.props.user.nickname}</Text>
                 <Text style={styles.id}>{this.props.user.id}</Text>
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     color: defaultStyles.primaryTextColor,
     fontSize: 30
   },
-  userInfo: {
+  body: {
     marginTop: 20,
     marginBottom: 20
   },
