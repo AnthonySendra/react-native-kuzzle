@@ -79,12 +79,13 @@ class KuzzleWrapper {
     })
   }
 
-  async listMessages (channel) {
+  async listLastMessages (channel) {
     const query = {
       query: {bool:{should:[{bool:{must:[{match_phrase_prefix: {channel: channel.replace('#', '')}}]}}]}},
-      sort: [{ timestamp: 'asc' }]
+      sort: [{ timestamp: 'desc' }]
     }
-    return this.messagesCollection.searchPromise(query, { size: 10 })
+
+    return this.messagesCollection.searchPromise(query, { size: 20 })
   }
 
   async listUsers () {

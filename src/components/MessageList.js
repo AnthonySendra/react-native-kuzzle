@@ -1,11 +1,19 @@
 import React from 'react'
-import { StyleSheet } from 'react-native'
+import { StyleSheet, Keyboard } from 'react-native'
 import { Container, Header, Content, List, ListItem, Left, Body, Right, Thumbnail, Text, Card, CardItem } from 'native-base'
 import defaultStyles from '../styles'
 
 export default class MessageList extends React.Component {
   constructor(props) {
     super(props)
+  }
+
+  componentDidMount() {
+    Keyboard.addListener('keyboardDidShow', () => {
+      setTimeout(() => {
+        this.list._root.scrollToEnd()
+      }, 100)
+    })
   }
 
   render() {
@@ -15,8 +23,8 @@ export default class MessageList extends React.Component {
           <Content>
             <Card >
               <CardItem>
-                <Body >
-                <Text>This discussion is empty, try saying something nice!</Text>
+                <Body>
+                  <Text>This discussion is empty, try saying something nice!</Text>
                 </Body>
               </CardItem>
             </Card>

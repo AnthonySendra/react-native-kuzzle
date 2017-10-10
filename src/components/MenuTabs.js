@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet } from 'react-native'
+import { StyleSheet, Keyboard } from 'react-native'
 import { Container, Header, Content, Footer, FooterTab, Button, Icon, Text, Badge } from 'native-base'
 import { Actions } from 'react-native-router-flux'
 
@@ -7,9 +7,21 @@ import { Actions } from 'react-native-router-flux'
 export default class MenuTabs extends React.Component {
   constructor(props) {
     super(props)
+    this.state = {
+      displayMenu: true
+    }
+  }
+
+  componentDidMount() {
+    Keyboard.addListener('keyboardDidShow', () => this.setState({displayMenu: false}))
+    Keyboard.addListener('keyboardDidHide', () => this.setState({displayMenu: true}))
   }
 
   render() {
+    if (!this.state.displayMenu) {
+      return (null)
+    }
+
     return (
       <Footer>
         <FooterTab>

@@ -1,6 +1,7 @@
 import React from 'react'
 import { Modal, TextInput, View, StyleSheet, Text } from 'react-native'
 import ButtonsModal from './ButtonsModal'
+import defaultStyles from '../styles'
 
 export default class ModalCreateChannel extends React.Component {
   constructor(props) {
@@ -51,7 +52,7 @@ export default class ModalCreateChannel extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#424242',
+    backgroundColor: defaultStyles.primaryBackgroundColor,
     flex: 1
   },
   content: {
@@ -61,7 +62,7 @@ const styles = StyleSheet.create({
     fontSize: 40,
     paddingTop: 20,
     textAlign: 'center',
-    color: '#fff'
+    color: defaultStyles.primaryTextColor
   },
   input: {
     flex: 1,

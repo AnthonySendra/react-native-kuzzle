@@ -25,17 +25,23 @@ class Chat extends React.Component {
 
   async componentDidMount() {
     await this._listMessages()
-    await kuzzle.subscribeChannels()
-    await kuzzle.subscribeMessages((err, result) => {
-      console.log(result)
+    kuzzle.subscribeMessages((err, result) => {
+      if (result.document.content.channel === this.props.currentChannel.id) {
+        this.setState({
+          messages: [...this.state.messages, {
+            ...result.document.content,
+            ...this.props.users[result.document.content.userId]
+          }]
+        })
+      }
     })
   }
 
   _listMessages = async () => {
     try {
-      const result = await kuzzle.listMessages(this.props.currentChannel.id)
+      const result = await kuzzle.listLastMessages(this.props.currentChannel.id)
       const messages = []
-      result.getDocuments().forEach((document) => {
+      result.getDocuments().reverse().forEach((document) => {
         messages.push({
           ...document.content,
           ...this.props.users[document.content.userId]

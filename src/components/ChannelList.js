@@ -1,6 +1,6 @@
 import React from 'react'
 import { StyleSheet, Text, SectionList } from 'react-native'
-import {List, ListItem, Left, Body, Right, Thumbnail, Container} from 'native-base'
+import {List, ListItem, Left, Body, Right, Thumbnail, Container, Fab } from 'native-base'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import ModalCreateChannel from './ModalCreateChannel'
 import NotificationUnread from './NotificationUnread'
@@ -61,6 +61,14 @@ export default class ChannelList extends React.Component {
           renderItem={({item}) => this._renderChannel(item)}
           renderSectionHeader={({section}) => <ListItem itemHeader style={styles.headerList}><Text style={styles.headerListText}>{section.title}</Text></ListItem>}
         />
+
+        <Fab
+          active={true} direction="up"
+          style={styles.fab}
+          position="bottomRight"
+          onPress={() => this._openModal()}>
+          <Icon name="add" />
+        </Fab>
 
         <ModalCreateChannel
           modalChannelOpen={this.state.modalOpen}
@@ -125,5 +133,8 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     textAlign: 'center',
     color: '#fff'
+  },
+  fab: {
+    backgroundColor: defaultStyles.prymaryColor
   }
 });

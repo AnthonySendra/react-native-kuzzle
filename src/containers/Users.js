@@ -5,7 +5,7 @@ import {Actions} from 'react-native-router-flux'
 import { Container, List, ListItem, Left, Body, Thumbnail, Text } from 'native-base'
 import defaultStyles from '../styles'
 import {listUsers, listUsersByIds} from '../reducers/users'
-import {listPrivateChannel, selectChannel} from '../reducers/channels'
+import {listPrivateChannel, selectChannel, addPrivateChannels} from '../reducers/channels'
 import ModalUserDetail from '../components/ModalUserDetail'
 import kuzzle from '../services/kuzzle'
 
@@ -30,16 +30,22 @@ class Users extends React.Component {
   }
 
   _chat = async () => {
-    const channelAlreadyExists = this.props.privateChannels
-      .some(channel => channel.label === this.state.selectedUser.nickname)
+    const channels = this.props.privateChannels
+      .filter(channel => channel.label === this.state.selectedUser.nickname)
+    let channel = channels.length ? channels[0] : null
 
-    // TODO: if channelAlreadyExists
-    if (!channelAlreadyExists) {
+    if (!channel) {
       const result = await kuzzle.createChannel('', this.state.selectedUser.id)
-      this.props.store.dispatch(selectChannel({id: result.id, label: this.state.selectedUser.nickname}))
-      Actions.chat()
-      this.setState({modalUserDetailOpen: false})
+      channel = {
+        ...result.content,
+        id: result.id,
+        label: this.state.selectedUser.nickname
+      }
     }
+
+    this.props.store.dispatch(selectChannel(channel))
+    Actions.chat()
+    this.setState({modalUserDetailOpen: false})
   }
 
   _bump = () => {

@@ -28,7 +28,8 @@ export default class App extends React.Component {
     await kuzzle.listUsers()
     await kuzzle.listChannels()
     await kuzzle.listPrivateChannels()
-    await kuzzle.subscribeMessages()
+    kuzzle.subscribeChannels()
+    kuzzle.subscribeMessages()
 
     kuzzle.subscribeUsers()
     this._subscribeBump()
@@ -58,7 +59,10 @@ export default class App extends React.Component {
     }
 
     return (
-      <KeyboardAvoidingView style={styles.container} behavior="padding">
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior="padding">
+
         <View style={styles.statusBar} />
 
         <ModalLoginRegister />
