@@ -50,13 +50,18 @@ export default class ChannelList extends React.Component {
   }
 
   render() {
+    const channels = [{title: 'DISCUSSIONS', data: [...this.props.channels]}]
+
+    if (this.props.permissionLocation) {
+      channels.push({title: 'GEO-LOCALIZED CHANNEL', data: [{...this.props.geoChannel}]})
+    }
+
+    channels.push({title: 'PRIVATE MESSAGES', data: [...this.props.privateChannels]})
+
     return (
       <Container style={styles.container}>
         <SectionList
-          sections={[
-            {title: 'DISCUSSIONS', data: [...this.props.channels]},
-            {title: 'PRIVATE MESSAGES', data: [...this.props.privateChannels]},
-          ]}
+          sections={channels}
           keyExtractor={(item) => item.id}
           renderItem={({item}) => this._renderChannel(item)}
           renderSectionHeader={({section}) => <ListItem itemHeader style={styles.headerList}><Text style={styles.headerListText}>{section.title}</Text></ListItem>}

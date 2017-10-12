@@ -4,7 +4,8 @@ import {addUsers} from '../reducers/users'
 import {addChannels, addPrivateChannels} from '../reducers/channels'
 
 Kuzzle.prototype.bluebird = require('bluebird')
-let rooms = []
+const rooms = []
+let roomChannelMessages
 
 class KuzzleWrapper {
   constructor () {
@@ -27,7 +28,54 @@ class KuzzleWrapper {
       .subscribe(filter, {subscribeToSelf: false, scope: 'in'}, (err, result) => cb(err, result))
   }
 
-  subscribeMessages (cb) {
+  subscribeChannelMessages (channelId, cb) {
+    const query = {and:[
+      {
+        equals: {
+          channel: channelId
+        }
+      }
+    ]}
+
+    if (channelId === '#geo') {
+      const location = {...store.getState().users.location}
+      query.and.push({
+        geoDistance: {
+          location: {
+            lat: location.latitude,
+            lon: location.longitude
+          },
+          distance: '5m'
+        }
+      })
+    }
+
+    if (roomChannelMessages) {
+      roomChannelMessages.unsubscribe()
+    }
+
+    this.messagesCollection
+      .subscribe(query, {subscribeToSelf: true, scope: 'in'}, (err, result) => {
+        if (result.document.content.event === 'bump') {
+          return
+        }
+        if (result.document.content.event === 'typing') {
+          return
+        }
+
+        cb(err, result)
+      })
+      .onDone((err, roomObject) => {
+        if (err) {
+          console.error(err)
+          return
+        }
+
+        roomChannelMessages = roomObject
+      })
+  }
+
+  subscribeAllMessages () {
     this.messagesCollection
       .subscribe({}, {subscribeToSelf: true, scope: 'in'}, (err, result) => {
         if (result.document.content.event === 'bump') {
@@ -37,15 +85,15 @@ class KuzzleWrapper {
           return
         }
 
-        if (cb) {
-          cb(err, result)
-        }
+        // TODO: Channel notification
+        return
       })
       .onDone((err, roomObject) => {
         if (err) {
           console.error(err)
-          return;
+          return
         }
+
         rooms.push(roomObject)
       })
   }
@@ -56,7 +104,7 @@ class KuzzleWrapper {
       .onDone((err, roomObject) => {
         if (err) {
           console.error(err)
-          return;
+          return
         }
 
         rooms.push(roomObject)
@@ -79,13 +127,27 @@ class KuzzleWrapper {
     })
   }
 
-  async listLastMessages (channel) {
+  async listLastMessages (channelId, from, size) {
     const query = {
-      query: {bool:{should:[{bool:{must:[{match_phrase_prefix: {channel: channel.replace('#', '')}}]}}]}},
+      query: {bool:{should:[{bool:{must:[{match_phrase_prefix: {channel: channelId.replace('#', '')}}]}}]}},
       sort: [{ timestamp: 'desc' }]
     }
 
-    return this.messagesCollection.searchPromise(query, { size: 20 })
+    const location = store.getState().users.location
+
+    if (channelId === '#geo') {
+      query.query.bool.filter = {
+        geo_distance : {
+          distance : '5m',
+          location : {
+            lat: location.latitude,
+            lon: location.longitude
+          }
+        }
+      }
+    }
+
+    return this.messagesCollection.searchPromise(query, { from, size })
   }
 
   async listUsers () {

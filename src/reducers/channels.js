@@ -4,6 +4,11 @@ const initState = {
   current: {
     id: '#kuzzle',
     label: 'kuzzle'
+  },
+  geo: {
+    id: '#geo',
+    label: 'Geo channel',
+    icon: 'location-on'
   }
 }
 

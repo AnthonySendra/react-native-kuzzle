@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import { StyleSheet } from 'react-native'
 import { Drawer, Input, Container, Content, Footer, FooterTab } from 'native-base'
 import MessageList from '../components/MessageList'
+import MessageMap from '../components/MessageMap'
 import ChannelList from '../components/ChannelList'
 import Header from '../components/Header'
 import kuzzle from '../services/kuzzle'
@@ -15,41 +16,49 @@ class Chat extends React.Component {
     super(props)
     this.state = {
       message: '',
-      messages: []
+      messages: [],
+      from: 0,
+      size: 10
     }
   }
 
-  componentWillUnmount() {
-    kuzzle.resetSubscribe()
+  async componentDidUpdate() {
+    kuzzle.subscribeChannelMessages(this.props.currentChannel.id, (err, result) => {
+      this.setState({
+        messages: [...this.state.messages, {
+          ...result.document.content,
+          ...this.props.users[result.document.content.userId],
+          id: result.document.id
+        }]
+      })
+    })
   }
 
   async componentDidMount() {
     await this._listMessages()
-    kuzzle.subscribeMessages((err, result) => {
-      console.log(result.document.content.channel, this.props.currentChannel.id)
-      if (result.document.content.channel === this.props.currentChannel.id) {
-        this.setState({
-          messages: [...this.state.messages, {
-            ...result.document.content,
-            ...this.props.users[result.document.content.userId]
-          }]
-        })
-      }
-    })
   }
 
-  _listMessages = async () => {
+  _listMessages = async (isRefresh) => {
     try {
-      const result = await kuzzle.listLastMessages(this.props.currentChannel.id)
+      if (isRefresh) {
+        await this.setState({from: this.state.from + this.state.size})
+      }
+
+      const result = await kuzzle.listLastMessages(this.props.currentChannel.id, this.state.from, this.state.size)
       const messages = []
       result.getDocuments().reverse().forEach((document) => {
         messages.push({
           ...document.content,
-          ...this.props.users[document.content.userId]
+          ...this.props.users[document.content.userId],
+          id: document.id
         })
       })
 
-      this.setState({messages})
+      if (isRefresh) {
+        this.setState({messages: [...messages, ...this.state.messages]})
+      } else {
+        this.setState({messages})
+      }
     } catch (err) {
       console.error(err)
     }
@@ -61,6 +70,13 @@ class Chat extends React.Component {
       content: this.state.message,
       timestamp: Date.now(),
       channel: this.props.currentChannel.id
+    }
+
+    if (this.props.currentChannel.id === '#geo') {
+      message.location = {
+        lat: this.props.userLocation.latitude,
+        lon: this.props.userLocation.longitude
+      }
     }
 
     try {
@@ -92,13 +108,29 @@ class Chat extends React.Component {
     }, 0)
   }
 
+  _displayMessages = () => {
+    if (this.props.currentChannel.id === '#geo') {
+      return (<MessageMap data={this.state.messages} userLocation={this.props.userLocation} />)
+    }
+
+    return (
+      <MessageList
+        refresh={() => this._listMessages(true)}
+        data={this.state.messages}>
+      </MessageList>
+    )
+  }
+
   render() {
     return (
       <Container>
         <Drawer
           ref={(ref) => this.drawer = ref}
           content={<ChannelList
+            permissionLocation={this.props.permissionLocation}
             channels={this.props.channels}
+            userLocation={this.props.userLocation}
+            geoChannel={this.props.geoChannel}
             privateChannels={this.props.privateChannels}
             onSubmitChannel={this._onSubmitChannel}
             onSelectChannel={this._onSelectChannel} />
@@ -108,9 +140,7 @@ class Chat extends React.Component {
           <Header showMenu={this._showMenu} channel={this.props.currentChannel.label}/>
 
           <Container>
-            <MessageList
-              data={this.state.messages}>
-            </MessageList>
+            {this._displayMessages()}
           </Container>
 
           <Footer style={styles.footer}>
@@ -145,6 +175,9 @@ function mapStateToProps(state) {
   return {
     users: listUsersByIds(state.users),
     currentUser: state.users.current,
+    permissionLocation: state.users.permissionLocation,
+    userLocation: state.users.location,
+    geoChannel: state.channels.geo,
     channels: listChannel(state.channels),
     privateChannels: listPrivateChannel(state.channels, state.users.current.id, listUsersByIds(state.users)),
     currentChannel: state.channels.current

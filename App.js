@@ -9,6 +9,7 @@ import Settings from './src/containers/Settings'
 import MenuTabs from './src/components/MenuTabs'
 import ModalLoginRegister from './src/components/ModalLoginRegister/ModalLoginRegister'
 import kuzzle from './src/services/kuzzle'
+import position from './src/services/position'
 import store from './src/store'
 import {listUsersByIds} from './src/reducers/users'
 
@@ -29,10 +30,13 @@ export default class App extends React.Component {
     await kuzzle.listChannels()
     await kuzzle.listPrivateChannels()
     kuzzle.subscribeChannels()
-    kuzzle.subscribeMessages()
+    kuzzle.subscribeAllMessages()
 
     kuzzle.subscribeUsers()
     this._subscribeBump()
+
+    await position.checkRights()
+    position.subscribe()
 
     this.setState({appIsReady: true})
   }
