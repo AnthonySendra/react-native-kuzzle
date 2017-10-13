@@ -3,7 +3,7 @@ import { StyleSheet, Keyboard, RefreshControl } from 'react-native'
 import { Container, Header, Content, List, ListItem, Left, Body, Right, Thumbnail, Text, Card, CardItem } from 'native-base'
 import defaultStyles from '../styles'
 
-export default class MessageList extends React.Component {
+export default class MessagesList extends React.Component {
   constructor(props) {
     super(props)
     this.state = {

@@ -29,7 +29,7 @@ class KuzzleWrapper {
   }
 
   subscribeChannelMessages (channelId, cb) {
-    const query = {and:[
+    const query = {and: [
       {
         equals: {
           channel: channelId
@@ -63,6 +63,7 @@ class KuzzleWrapper {
           return
         }
 
+        console.log('NEW MESSAGE')
         cb(err, result)
       })
       .onDone((err, roomObject) => {

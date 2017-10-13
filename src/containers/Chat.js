@@ -2,8 +2,8 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { StyleSheet } from 'react-native'
 import { Drawer, Input, Container, Content, Footer, FooterTab } from 'native-base'
-import MessageList from '../components/MessageList'
-import MessageMap from '../components/MessageMap'
+import MessagesList from '../components/MessagesList'
+import MessagesMap from '../components/MessagesMap'
 import ChannelList from '../components/ChannelList'
 import Header from '../components/Header'
 import kuzzle from '../services/kuzzle'
@@ -110,14 +110,14 @@ class Chat extends React.Component {
 
   _displayMessages = () => {
     if (this.props.currentChannel.id === '#geo') {
-      return (<MessageMap data={this.state.messages} userLocation={this.props.userLocation} />)
+      return (<MessagesMap data={this.state.messages} userLocation={this.props.userLocation} />)
     }
 
     return (
-      <MessageList
+      <MessagesList
         refresh={() => this._listMessages(true)}
         data={this.state.messages}>
-      </MessageList>
+      </MessagesList>
     )
   }
 
