@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { StyleSheet } from 'react-native'
-import { Drawer, Input, Container, Content, Footer, FooterTab, Text } from 'native-base'
+import { Drawer, Input, Container, Content, Footer, FooterTab } from 'native-base'
 import MessagesList from '../components/MessagesList'
 import MessagesMap from '../components/MessagesMap'
 import ChannelList from '../components/ChannelList'
@@ -10,6 +10,7 @@ import kuzzle from '../services/kuzzle'
 import { listUsersByIds } from '../reducers/users'
 import { selectChannel, listChannel, listPrivateChannel } from '../reducers/channels'
 import defaultStyles from '../styles'
+import store from '../store'
 
 class Chat extends React.Component {
   constructor(props) {
@@ -100,7 +101,7 @@ class Chat extends React.Component {
   }
 
   _onSelectChannel = (id, label) => {
-    this.props.store.dispatch(selectChannel({id, label}))
+    store.dispatch(selectChannel({id, label}))
 
     setTimeout(async () => {
       await this._listMessages()
