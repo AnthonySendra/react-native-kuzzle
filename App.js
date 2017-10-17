@@ -43,6 +43,7 @@ export default class App extends React.Component {
     kuzzle.subscribeAllMessages()
 
     kuzzle.subscribeUsers()
+    kuzzle.heartBeatStatus()
     this._subscribeBump()
 
     await position.checkRights()

@@ -14,12 +14,14 @@ const initState = {
 }
 
 const USERS_ADD = 'USERS_ADD'
+const CURRENT_USER_UPDATE = 'CURRENT_USER_UPDATE'
 const USER_UPDATE = 'USER_UPDATE'
 const PERMISSION_LOCATION_UPDATE = 'PERMISSION_LOCATION_UPDATE'
 const LOCATION_UPDATE = 'LOCATION_UPDATE'
 
 export const addUsers = (payload) => ({type: USERS_ADD, payload})
 export const updateUser = (payload) => ({type: USER_UPDATE, payload})
+export const updateCurrentUser = (payload) => ({type: CURRENT_USER_UPDATE, payload})
 export const updatePermissionLocation = (payload) => ({type: PERMISSION_LOCATION_UPDATE, payload})
 export const updateLocation = (payload) => ({type: LOCATION_UPDATE, payload})
 
@@ -28,6 +30,16 @@ export default (state = initState, action) => {
     case USERS_ADD:
       return {...state, list: [...state.list, ...action.payload]}
     case USER_UPDATE:
+      const newList = state.list.map(item => {
+        if (item.id !== action.payload.id) {
+          return item
+        }
+
+        return action.payload
+      })
+
+      return {...state, list: [...newList]}
+    case CURRENT_USER_UPDATE:
       return {...state, current: {...state.current, ...action.payload}}
     case PERMISSION_LOCATION_UPDATE:
       return {...state, permissionLocation: action.payload}

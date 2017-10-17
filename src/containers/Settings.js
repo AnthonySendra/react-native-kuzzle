@@ -4,7 +4,7 @@ import { StyleSheet, TouchableOpacity } from 'react-native'
 import { Container, Content, Thumbnail, Text, Body, Form, Item, Input, Label, View, Toast, Root } from 'native-base'
 import defaultStyles from '../styles'
 import kuzzle from '../services/kuzzle'
-import {updateUser} from '../reducers/users'
+import {updateCurrentUser} from '../reducers/users'
 
 class Settings extends React.Component {
   constructor(props) {
@@ -24,9 +24,9 @@ class Settings extends React.Component {
 
   _save = async () => {
     try {
-      this.props.store.dispatch(updateUser(this.state))
+      this.props.store.dispatch(updateCurrentUser(this.state))
 
-      await kuzzle.updateUser()
+      await kuzzle.updateCurrentUser()
       Toast.show({
         text: 'Your modifications were saved successfully!',
         position: 'top',

@@ -17,10 +17,6 @@ class MenuTabs extends React.Component {
     Keyboard.addListener('keyboardDidHide', () => this.setState({displayMenu: true}))
   }
 
-  componentWillUpdate() {
-    console.log('update', this.props.routes)
-  }
-
   render() {
     if (!this.state.displayMenu) {
       return (null)

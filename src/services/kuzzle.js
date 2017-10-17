@@ -1,6 +1,6 @@
 import Kuzzle from 'kuzzle-sdk/dist/kuzzle.js'
 import store from '../store'
-import {addUsers} from '../reducers/users'
+import {addUsers, updateUser} from '../reducers/users'
 import {addChannels, addPrivateChannels} from '../reducers/channels'
 
 Kuzzle.prototype.bluebird = require('bluebird')
@@ -113,7 +113,12 @@ class KuzzleWrapper {
 
   subscribeUsers () {
     this.usersCollection.subscribe({}, {scope: 'in'}, (err, result) => {
-      store.dispatch(addUsers([{...result.document.content, id: result.document.id}]))
+      if (result.action === 'create') {
+        store.dispatch(addUsers([{...result.document.content, id: result.document.id}]))
+      }
+      if (result.action === 'update') {
+        store.dispatch(updateUser({...result.document.content, id: result.document.id}))
+      }
     })
   }
 
@@ -209,11 +214,24 @@ class KuzzleWrapper {
     return await this.channelsCollection.createDocumentPromise(id, channel)
   }
 
-  async updateUser () {
+  async updateCurrentUser () {
     const currentUser = {...store.getState().users.current}
     delete currentUser.id
 
     return this.usersCollection.updateDocument(store.getState().users.current.id, {...currentUser})
+  }
+
+  heartBeatStatus () {
+    const heartBeat = () => {
+      const currentUser = {...store.getState().users.current}
+      delete currentUser.id
+      currentUser.lastActive = Date.now()
+
+      return this.usersCollection.updateDocument(store.getState().users.current.id, {...currentUser})
+    }
+
+    heartBeat()
+    setInterval(heartBeat, 50000)
   }
 
   resetSubscribe () {

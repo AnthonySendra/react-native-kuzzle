@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { StyleSheet } from 'react-native'
-import { Drawer, Input, Container, Content, Footer, FooterTab } from 'native-base'
+import { Drawer, Input, Container, Content, Footer, FooterTab, Text } from 'native-base'
 import MessagesList from '../components/MessagesList'
 import MessagesMap from '../components/MessagesMap'
 import ChannelList from '../components/ChannelList'

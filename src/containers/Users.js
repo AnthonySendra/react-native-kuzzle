@@ -2,10 +2,10 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { StyleSheet } from 'react-native'
 import {Actions} from 'react-native-router-flux'
-import { Container, List, ListItem, Left, Body, Thumbnail, Text } from 'native-base'
+import { Container, List, ListItem, Left, Body, Thumbnail, Text, Right, Icon } from 'native-base'
 import defaultStyles from '../styles'
 import {listUsers, listUsersByIds} from '../reducers/users'
-import {listPrivateChannel, selectChannel, addPrivateChannels} from '../reducers/channels'
+import {listPrivateChannel, selectChannel} from '../reducers/channels'
 import ModalUserDetail from '../components/ModalUserDetail'
 import kuzzle from '../services/kuzzle'
 
@@ -52,6 +52,14 @@ class Users extends React.Component {
     kuzzle.bump(this.state.selectedUser.id)
   }
 
+  _userStatus = (item) => {
+    if (item.lastActive && Date.now() - item.lastActive <= 60000) {
+      return <Icon name="radio-button-on" style={{color: 'green'}}/>
+    }
+
+    return <Icon name="radio-button-off" style={{color: 'red'}}/>
+  }
+
   render() {
     return (
       <Container>
@@ -66,6 +74,9 @@ class Users extends React.Component {
               <Text style={styles.nickname}>{item.nickname}</Text>
               <Text style={styles.email} note>{item.id}</Text>
             </Body>
+            <Right>
+              {this._userStatus(item)}
+            </Right>
           </ListItem>
         }>
         </List>
