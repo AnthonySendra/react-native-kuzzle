@@ -5,6 +5,7 @@ import { Container, Content, Thumbnail, Text, Body, Form, Item, Input, Label, Vi
 import defaultStyles from '../styles'
 import kuzzle from '../services/kuzzle'
 import {updateCurrentUser} from '../reducers/users'
+import store from '../store'
 
 class Settings extends React.Component {
   constructor(props) {
@@ -24,7 +25,7 @@ class Settings extends React.Component {
 
   _save = async () => {
     try {
-      this.props.store.dispatch(updateCurrentUser(this.state))
+      store.dispatch(updateCurrentUser(this.state))
 
       await kuzzle.updateCurrentUser()
       Toast.show({
