@@ -8,6 +8,7 @@ import {listUsers, listUsersByIds} from '../reducers/users'
 import {listPrivateChannel, selectChannel} from '../reducers/channels'
 import ModalUserDetail from '../components/ModalUserDetail'
 import kuzzle from '../services/kuzzle'
+import store from '../store'
 
 class Users extends React.Component {
   constructor(props) {
@@ -43,7 +44,7 @@ class Users extends React.Component {
       }
     }
 
-    this.props.store.dispatch(selectChannel(channel))
+    store.dispatch(selectChannel(channel))
     Actions.chat()
     this.setState({modalUserDetailOpen: false})
   }
