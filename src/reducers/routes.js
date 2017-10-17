@@ -1,16 +1,16 @@
 import { ActionConst } from 'react-native-router-flux';
 
 const initialState = {
-  scene: {},
-};
+  currentScene: 'chat'
+}
+export const changeFocus = (type, payload) => ({type, payload})
 
 export default (state = initialState, action = {}) => {
   switch (action.type) {
-    case ActionConst.FOCUS:
-      console.log('focus')
+    case ActionConst.PUSH:
       return {
         ...state,
-        scene: action.scene,
+        currentScene: action.payload,
       }
     default:
       return state

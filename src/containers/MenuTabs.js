@@ -18,6 +18,7 @@ class MenuTabs extends React.Component {
   }
 
   componentWillUpdate() {
+    console.log('update', this.props.routes)
   }
 
   render() {
@@ -25,22 +26,19 @@ class MenuTabs extends React.Component {
       return (null)
     }
 
-    const {routes} = this.context
-    console.log(routes)
-
     return (
       <Footer>
         <FooterTab>
-          <Button vertical onPress={() => {Actions.chat()}} active={this.props.routes.scene.title === 'chat'}>
+          <Button vertical onPress={() => {Actions.chat()}} active={this.props.routes.currentScene === 'chat'}>
             {/*<Badge><Text>2</Text></Badge>*/}
             <Icon name="chatboxes" />
-            <Text>{this.props.routes.scene.title}</Text>
+            <Text>Chat</Text>
           </Button>
-          <Button vertical onPress={() => {Actions.users()}} active={this.props.routes.scene.title === 'users'}>
+          <Button vertical onPress={() => {Actions.users()}} active={this.props.routes.currentScene === 'users'}>
             <Icon name="contact" />
             <Text>Users</Text>
           </Button>
-          <Button vertical onPress={() => {Actions.settings()}} active={this.props.routes.scene.title === 'settings'}>
+          <Button vertical onPress={() => {Actions.settings()}} active={this.props.routes.currentScene === 'settings'}>
             <Icon name="settings"/>
             <Text>Settings</Text>
           </Button>

@@ -2,19 +2,26 @@ import React from 'react'
 import { Container, Header } from 'native-base'
 import { StyleSheet, View, StatusBar, KeyboardAvoidingView, Alert, Vibration } from 'react-native'
 import { Font, AppLoading } from 'expo'
-import {Scene, Router} from 'react-native-router-flux'
+import {Scene, Router, Reducer} from 'react-native-router-flux'
 import Chat from './src/containers/Chat'
 import Users from './src/containers/Users'
 import Settings from './src/containers/Settings'
-import MenuTabs from './src/components/MenuTabs'
+import MenuTabs from './src/containers/MenuTabs'
 import ModalLoginRegister from './src/components/ModalLoginRegister/ModalLoginRegister'
 import kuzzle from './src/services/kuzzle'
 import position from './src/services/position'
 import store from './src/store'
 import {listUsersByIds} from './src/reducers/users'
-import { connect, Provider } from 'react-redux'
+import {changeFocus} from './src/reducers/routes'
+import { Provider } from 'react-redux'
 
-const RouterWithRedux = connect()(Router)
+const routerReducerCreate = params => {
+  const defaultReducer = new Reducer(params);
+  return (state, action) => {
+    store.dispatch(changeFocus(action.type, action.routeName))
+    return defaultReducer(state, action)
+  }
+}
 
 export default class App extends React.Component {
   constructor(props) {
@@ -75,7 +82,7 @@ export default class App extends React.Component {
 
           <ModalLoginRegister />
 
-          <RouterWithRedux >
+          <Router createReducer={routerReducerCreate}>
             <Scene key="root">
               <Scene
                 key="chat"
@@ -97,7 +104,7 @@ export default class App extends React.Component {
                 hideNavBar
               />
             </Scene>
-          </RouterWithRedux>
+          </Router>
 
           <MenuTabs  />
         </KeyboardAvoidingView>
