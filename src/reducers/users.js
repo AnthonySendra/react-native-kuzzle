@@ -32,7 +32,6 @@ export default (state = initState, action) => {
     case PERMISSION_LOCATION_UPDATE:
       return {...state, permissionLocation: action.payload}
     case LOCATION_UPDATE:
-      console.log(action.payload)
       return {...state, location: {...action.payload}}
     default:
       return state

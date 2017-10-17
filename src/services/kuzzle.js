@@ -63,7 +63,6 @@ class KuzzleWrapper {
           return
         }
 
-        console.log('NEW MESSAGE')
         cb(err, result)
       })
       .onDone((err, roomObject) => {

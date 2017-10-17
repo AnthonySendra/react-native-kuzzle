@@ -12,6 +12,9 @@ import kuzzle from './src/services/kuzzle'
 import position from './src/services/position'
 import store from './src/store'
 import {listUsersByIds} from './src/reducers/users'
+import { connect, Provider } from 'react-redux'
+
+const RouterWithRedux = connect()(Router)
 
 export default class App extends React.Component {
   constructor(props) {
@@ -63,43 +66,42 @@ export default class App extends React.Component {
     }
 
     return (
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior="padding">
+      <Provider store={store}>
+        <KeyboardAvoidingView
+          style={styles.container}
+          behavior="padding">
 
-        <View style={styles.statusBar} />
+          <View style={styles.statusBar} />
 
-        <ModalLoginRegister />
+          <ModalLoginRegister />
 
-        <Router>
-          <Scene key="root">
-            <Scene
-              key="chat"
-              component={Chat}
-              title="chat"
-              hideNavBar
-              initial={true}
-              store={store}
-            />
-            <Scene
-              key="users"
-              component={Users}
-              title="users"
-              hideNavBar
-              store={store}
-            />
-            <Scene
-              key="settings"
-              component={Settings}
-              title="settings"
-              hideNavBar
-              store={store}
-            />
-          </Scene>
-        </Router>
+          <RouterWithRedux >
+            <Scene key="root">
+              <Scene
+                key="chat"
+                component={Chat}
+                title="chat"
+                hideNavBar
+                initial={true}
+              />
+              <Scene
+                key="users"
+                component={Users}
+                title="users"
+                hideNavBar
+              />
+              <Scene
+                key="settings"
+                component={Settings}
+                title="settings"
+                hideNavBar
+              />
+            </Scene>
+          </RouterWithRedux>
 
-        <MenuTabs />
-      </KeyboardAvoidingView>
+          <MenuTabs  />
+        </KeyboardAvoidingView>
+      </Provider>
     )
   }
 }
