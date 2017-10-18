@@ -8,7 +8,7 @@ import ChannelList from '../components/ChannelList'
 import Header from '../components/Header'
 import kuzzle from '../services/kuzzle'
 import { listUsersByIds } from '../reducers/users'
-import { selectChannel, listChannel, listPrivateChannel } from '../reducers/channels'
+import { selectChannel, listChannel, listPrivateChannel, setChannelUnread } from '../reducers/channels'
 import defaultStyles from '../styles'
 import store from '../store'
 
@@ -102,6 +102,7 @@ class Chat extends React.Component {
 
   _onSelectChannel = (id, label) => {
     store.dispatch(selectChannel({id, label}))
+    store.dispatch(setChannelUnread({id, unread: false}))
 
     setTimeout(async () => {
       await this._listMessages()

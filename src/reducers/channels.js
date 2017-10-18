@@ -15,10 +15,12 @@ const initState = {
 const CHANNELS_ADD = 'CHANNELS_ADD'
 const CHANNELS_PRIVATE_ADD = 'CHANNELS_PRIVATE_ADD'
 const CHANNELS_SELECT = 'CHANNELS_SELECT'
+const UNREAD_CHANNEL_TOGGLE = 'UNREAD_CHANNEL_TOGGLE'
 
 export const addChannels = (payload) => ({type: CHANNELS_ADD, payload})
 export const addPrivateChannels = (payload) => ({type: CHANNELS_PRIVATE_ADD, payload})
 export const selectChannel = (payload) => ({type: CHANNELS_SELECT, payload})
+export const setChannelUnread = (payload) => ({type: UNREAD_CHANNEL_TOGGLE, payload})
 
 export default (state = initState, action) => {
   switch (action.type) {
@@ -28,6 +30,22 @@ export default (state = initState, action) => {
       return {...state, current: {...action.payload}}
     case CHANNELS_PRIVATE_ADD:
       return {...state, listPrivate: [...state.listPrivate, ...action.payload]}
+    case UNREAD_CHANNEL_TOGGLE:
+      const newList = state.list.map(channel => {
+        if (channel.id === action.payload.id) {
+          channel.unread = action.payload.unread
+        }
+        return channel
+      })
+
+      const newListPrivate = state.listPrivate.map(channel => {
+        if (channel.id === action.payload.id) {
+          channel.unread = action.payload.unread
+        }
+        return channel
+      })
+
+      return {...state, list: [...newList], listPrivate: [...newListPrivate]}
     default:
       return state
   }
@@ -42,7 +60,7 @@ export const listChannel = (state) => {
 export const listPrivateChannel = (state, currentUserId, usersById) => {
   return state.listPrivate
     .map(channel => {
-      const otherUser =  channel.users[0] === currentUserId ? usersById[channel.users[1]] : usersById[channel.users[0]]
+      const otherUser = channel.users[0] === currentUserId ? usersById[channel.users[1]] : usersById[channel.users[0]]
 
       return {
         ...channel,
@@ -53,4 +71,8 @@ export const listPrivateChannel = (state, currentUserId, usersById) => {
     .sort((a, b) => {
       return a.label.localeCompare(b.label)
     })
+}
+
+export const isChannelUnread = (state) => {
+  return (state.list.some(channel => channel.unread) || state.listPrivate.some(channel => channel.unread))
 }

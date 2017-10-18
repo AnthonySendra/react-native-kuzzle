@@ -1,8 +1,9 @@
 import React from 'react'
-import { StyleSheet, Keyboard } from 'react-native'
+import { Keyboard } from 'react-native'
 import { Container, Header, Content, Footer, FooterTab, Button, Icon, Text, Badge } from 'native-base'
 import { Actions } from 'react-native-router-flux'
 import { connect } from 'react-redux'
+import {isChannelUnread} from '../reducers/channels'
 
 class MenuTabs extends React.Component {
   constructor(props) {
@@ -25,8 +26,10 @@ class MenuTabs extends React.Component {
     return (
       <Footer>
         <FooterTab>
-          <Button vertical onPress={() => {Actions.chat()}} active={this.props.routes.currentScene === 'chat'}>
-            {/*<Badge><Text>2</Text></Badge>*/}
+          <Button badge={this.props.isChannelUnread} vertical onPress={() => {Actions.chat()}} active={this.props.routes.currentScene === 'chat'}>
+            {this.props.isChannelUnread &&
+              <Badge><Text>!</Text></Badge>
+            }
             <Icon name="chatboxes" />
             <Text>Chat</Text>
           </Button>
@@ -44,7 +47,12 @@ class MenuTabs extends React.Component {
   }
 }
 
-const styles = StyleSheet.create({
-});
+function mapStateToProps(state) {
+  return {
+    routes: state.routes,
+    isChannelUnread: isChannelUnread(state.channels)
+  }
+}
 
-export default connect(({routes}) => ({routes}))(MenuTabs)
+export default connect(mapStateToProps)(MenuTabs)
+

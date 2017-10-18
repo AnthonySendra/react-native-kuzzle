@@ -1,7 +1,7 @@
 import Kuzzle from 'kuzzle-sdk/dist/kuzzle.js'
 import store from '../store'
 import {addUsers, updateUser} from '../reducers/users'
-import {addChannels, addPrivateChannels} from '../reducers/channels'
+import {addChannels, addPrivateChannels, setChannelUnread} from '../reducers/channels'
 
 Kuzzle.prototype.bluebird = require('bluebird')
 const rooms = []
@@ -84,9 +84,11 @@ class KuzzleWrapper {
         if (result.document.content.event === 'typing') {
           return
         }
+        if (store.getState().channels.current.id === result.document.content.channel) {
+          return
+        }
 
-        // TODO: Channel notification
-        return
+        store.dispatch(setChannelUnread({id: result.document.content.channel, unread: true}))
       })
       .onDone((err, roomObject) => {
         if (err) {
@@ -172,7 +174,7 @@ class KuzzleWrapper {
     const channels = []
 
     result.getDocuments().forEach(function(document) {
-      channels.push({...document.content, id: document.id})
+      channels.push({...document.content, id: document.id, unread: false})
     })
 
     store.dispatch(addChannels(channels))
@@ -185,7 +187,7 @@ class KuzzleWrapper {
     const privateChannels = []
 
     result.getDocuments().forEach(function(document) {
-      privateChannels.push({...document.content, id: document.id})
+      privateChannels.push({...document.content, id: document.id, unread: false})
     })
 
     store.dispatch(addPrivateChannels(privateChannels))

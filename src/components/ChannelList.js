@@ -1,9 +1,8 @@
 import React from 'react'
-import { StyleSheet, Text, SectionList } from 'react-native'
-import {List, ListItem, Left, Body, Right, Thumbnail, Container, Fab } from 'native-base'
+import { StyleSheet, SectionList } from 'react-native'
+import {List, ListItem, Left, Body, Right, Thumbnail, Container, Fab, Badge, Text } from 'native-base'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import ModalCreateChannel from './ModalCreateChannel'
-import NotificationUnread from './NotificationUnread'
 import defaultStyles from '../styles'
 
 export default class ChannelList extends React.Component {
@@ -36,7 +35,7 @@ export default class ChannelList extends React.Component {
       image = <Icon style={styles.icon} name={item.icon.replace('_', '-')} />
     }
 
-    return <ListItem avatar onPress={() => this.props.onSelectChannel(item.id, item.label)} style={styles.item}>
+    return <ListItem icon={item.unread} avatar onPress={() => this.props.onSelectChannel(item.id, item.label)} style={styles.item}>
       <Left>
         {image}
       </Left>
@@ -44,7 +43,9 @@ export default class ChannelList extends React.Component {
         <Text style={styles.itemText}>{item.label}</Text>
       </Body>
       <Right>
-        <NotificationUnread data={item}/>
+        {item.unread &&
+          <Badge style={styles.notification}><Text style={styles.notificationText}>!</Text></Badge>
+        }
       </Right>
     </ListItem>
   }
@@ -113,13 +114,12 @@ const styles = StyleSheet.create({
     color: defaultStyles.ligtherTextColor,
     fontSize: 18
   },
-  separator: {
-
-  },
   notification: {
-    color: '#cc273c'
+    height: 20,
+    width: 20
   },
-  createChannel: {
+  notificationText: {
+    lineHeight: 20
   },
   createChannelText: {
     fontSize: 18,
