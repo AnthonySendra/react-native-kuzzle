@@ -37,6 +37,8 @@ class Chat extends React.Component {
   }
 
   async componentDidMount() {
+    this.setState({searchMessages: []})
+    store.dispatch(toggleSearching())
     await this._listMessages()
   }
 
