@@ -35,12 +35,18 @@ export default class MessagesList extends React.Component {
             <Card>
               <CardItem>
                 <Body>
-                  <Text>This discussion is empty, try saying something nice!</Text>
+                {this.props.isSearch &&
+                <Text>Try typing 3 characters in the search bar.</Text>
+                }
+                {!this.props.isSearch &&
+                <Text>This discussion is empty, try saying something nice!</Text>
+                }
                 </Body>
               </CardItem>
             </Card>
           </Content>
-        </Container>)
+        </Container>
+      )
     }
 
     return (
@@ -61,6 +67,11 @@ export default class MessagesList extends React.Component {
               <Text>{message.nickname}</Text>
               <Text style={styles.message} note>{message.content}</Text>
             </Body>
+            {this.props.isSearch &&
+            <Right>
+              <Text style={styles.channelName}>{message.channel}</Text>
+            </Right>
+            }
           </ListItem>
         }>
       </List>
@@ -87,5 +98,8 @@ const styles = StyleSheet.create({
   },
   emptyCard: {
     height: 50
+  },
+  channelName: {
+    color: '#656565'
   }
 });

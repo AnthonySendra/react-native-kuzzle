@@ -157,6 +157,19 @@ class KuzzleWrapper {
     return this.messagesCollection.searchPromise(query, { from, size })
   }
 
+  async searchMessages (text) {
+    const query = {
+      query: {
+        bool: { must: [
+          { wildcard: { content: `*${text.toLowerCase()}*` } },
+          { terms: { channel: store.getState().channels.list.map(c => c.id.replace('#', '')) } }
+        ] } },
+      sort: [{ timestamp: 'desc' }]
+    }
+
+    return this.messagesCollection.searchPromise(query, { size: 100 })
+  }
+
   async listUsers () {
     const result = await this.usersCollection.searchPromise({sort: [{ _uid: 'asc' }]}, { size: 100 })
     const users = []

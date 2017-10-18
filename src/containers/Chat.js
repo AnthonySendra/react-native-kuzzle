@@ -8,7 +8,7 @@ import ChannelList from '../components/ChannelList'
 import HeaderChat from '../components/HeaderChat'
 import kuzzle from '../services/kuzzle'
 import { listUsersByIds } from '../reducers/users'
-import { selectChannel, listChannel, listPrivateChannel, setChannelUnread } from '../reducers/channels'
+import { selectChannel, listChannel, listPrivateChannel, setChannelUnread, toggleSearching } from '../reducers/channels'
 import defaultStyles from '../styles'
 import store from '../store'
 
@@ -19,7 +19,8 @@ class Chat extends React.Component {
       message: '',
       messages: [],
       from: 0,
-      size: 10
+      size: 10,
+      searchMessages: []
     }
   }
 
@@ -110,14 +111,49 @@ class Chat extends React.Component {
     }, 0)
   }
 
+  _toggleSearch = () => {
+    store.dispatch(toggleSearching())
+    this.setState({searchMessages: []})
+  }
+
+  _search = async (text) => {
+    if (text.length < 3) {
+      this.setState({searchMessages: []})
+      return
+    }
+
+    const result = await kuzzle.searchMessages(text)
+
+    const messages = []
+    result.getDocuments().reverse().forEach((document) => {
+      messages.push({
+        ...document.content,
+        ...this.props.users[document.content.userId],
+        id: document.id
+      })
+    })
+
+    this.setState({searchMessages: messages})
+  }
+
   _displayMessages = () => {
     if (this.props.currentChannel.id === '#geo') {
       return (<MessagesMap data={this.state.messages} userLocation={this.props.userLocation} />)
     }
 
+    if (this.props.searching) {
+      return (
+        <MessagesList
+          data={this.state.searchMessages}
+          isSearch={true}>
+        </MessagesList>
+      )
+    }
+
     return (
       <MessagesList
         refresh={() => this._listMessages(true)}
+        isSearch={false}
         data={this.state.messages}>
       </MessagesList>
     )
@@ -139,12 +175,19 @@ class Chat extends React.Component {
           }
         >
 
-          <HeaderChat showMenu={this._showMenu} channel={this.props.currentChannel.label}/>
+          <HeaderChat
+            showMenu={this._showMenu}
+            channel={this.props.currentChannel.label}
+            toggleSearch={this._toggleSearch}
+            searching={this.props.searching}
+            search={this._search}
+          />
 
           <Container>
             {this._displayMessages()}
           </Container>
 
+          {!this.props.searching &&
           <Footer style={styles.footer}>
             <FooterTab style={styles.footer}>
               <Input
@@ -157,6 +200,7 @@ class Chat extends React.Component {
               />
             </FooterTab>
           </Footer>
+          }
         </Drawer>
       </Container>
     );
@@ -182,7 +226,8 @@ function mapStateToProps(state) {
     geoChannel: state.channels.geo,
     channels: listChannel(state.channels),
     privateChannels: listPrivateChannel(state.channels, state.users.current.id, listUsersByIds(state.users)),
-    currentChannel: state.channels.current
+    currentChannel: state.channels.current,
+    searching: state.channels.searching
   }
 }
 

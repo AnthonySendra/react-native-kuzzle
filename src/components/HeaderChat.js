@@ -6,16 +6,21 @@ import defaultStyles from '../styles'
 export default class HeaderChat extends React.Component {
   constructor(props) {
     super(props)
-    this.state = {
-      isSearch: false
-    }
   }
 
   _displaySearch = () => {
-    this.setState({isSearch: true})
+    this.props.toggleSearch()
     setTimeout(() => {
       this.searchInput._root.focus()
     }, 0)
+  }
+
+  _search = (text) => {
+    this.props.search(text)
+  }
+
+  _closeSearch = () => {
+    this.props.toggleSearch()
   }
 
   _normalDisplay = () => {
@@ -43,8 +48,12 @@ export default class HeaderChat extends React.Component {
       <Header style={styles.header} searchBar={true}>
         <Item>
           <Icon name="search" />
-          <Input placeholder="Search" ref={(ref) => {this.searchInput = ref}}/>
-          <Button transparent onPress={() => {this.setState({isSearch: false})}}>
+          <Input
+            placeholder="Search"
+            ref={(ref) => {this.searchInput = ref}}
+            onChangeText={(text) => this._search(text)}
+          />
+          <Button transparent onPress={() => {this._closeSearch()}}>
             <Icon name="close" />
           </Button>
         </Item>
@@ -53,7 +62,7 @@ export default class HeaderChat extends React.Component {
   }
 
   render() {
-    if (this.state.isSearch) {
+    if (this.props.searching) {
       return this._searchDisplay()
     }
 
