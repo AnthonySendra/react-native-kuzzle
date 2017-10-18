@@ -158,7 +158,7 @@ class KuzzleWrapper {
   }
 
   async listUsers () {
-    const result = await this.usersCollection.searchPromise({sort: [{ _uid: 'asc' }]}, {})
+    const result = await this.usersCollection.searchPromise({sort: [{ _uid: 'asc' }]}, { size: 100 })
     const users = []
 
     result.getDocuments().forEach(function(document) {
