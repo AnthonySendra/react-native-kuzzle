@@ -1,11 +1,11 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { StyleSheet } from 'react-native'
-import { Drawer, Input, Container, Content, Footer, FooterTab } from 'native-base'
+import { Drawer, Input, Container, Content, Footer, FooterTab, Header, Left, Body, Right, Button, Icon } from 'native-base'
 import MessagesList from '../components/MessagesList'
 import MessagesMap from '../components/MessagesMap'
 import ChannelList from '../components/ChannelList'
-import Header from '../components/Header'
+import HeaderChat from '../components/HeaderChat'
 import kuzzle from '../services/kuzzle'
 import { listUsersByIds } from '../reducers/users'
 import { selectChannel, listChannel, listPrivateChannel, setChannelUnread } from '../reducers/channels'
@@ -139,7 +139,7 @@ class Chat extends React.Component {
           }
         >
 
-          <Header showMenu={this._showMenu} channel={this.props.currentChannel.label}/>
+          <HeaderChat showMenu={this._showMenu} channel={this.props.currentChannel.label}/>
 
           <Container>
             {this._displayMessages()}
