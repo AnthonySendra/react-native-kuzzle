@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "poc-react-native-kuzzle",
-    "description": "An empty new project",
+    "description": "A Chat app made with Kuzzle",
     "slug": "poc-react-native-kuzzle",
     "privacy": "public",
     "sdkVersion": "20.0.0",

@@ -57,14 +57,14 @@ class Settings extends React.Component {
             </Body>
 
             <Form>
-              <Item floatingLabel>
+              <Item stackedLabel>
                 <Label>Nickname</Label>
                 <Input
                   value={this.state.nickname}
                   onChangeText={nickname => this.setState({nickname})}
                 />
               </Item>
-              <Item floatingLabel last>
+              <Item stackedLabel last>
                 <Label>What I do</Label>
                 <Input
                   value={this.state.ido}
