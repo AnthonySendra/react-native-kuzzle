@@ -55,7 +55,11 @@ class Users extends React.Component {
 
   _userStatus = (item) => {
     if (item.lastActive && Date.now() - item.lastActive <= 60000) {
-      return <Icon name="radio-button-on" style={{color: 'green'}}/>
+      if (item.status) {
+        return <Icon name="radio-button-on" style={{color: 'green'}}/>
+      }
+
+      return <Icon name="radio-button-on" style={{color: 'orange'}}/>
     }
 
     return <Icon name="radio-button-off" style={{color: 'red'}}/>
