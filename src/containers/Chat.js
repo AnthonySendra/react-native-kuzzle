@@ -8,7 +8,7 @@ import ChannelList from '../components/ChannelList'
 import HeaderChat from '../components/HeaderChat'
 import kuzzle from '../services/kuzzle'
 import { listUsersByIds } from '../reducers/users'
-import { selectChannel, listChannel, listPrivateChannel, setChannelUnread, toggleSearching } from '../reducers/channels'
+import { selectChannel, listChannel, listPrivateChannel, setChannelUnread, setSearching } from '../reducers/channels'
 import defaultStyles from '../styles'
 import store from '../store'
 
@@ -38,7 +38,7 @@ class Chat extends React.Component {
 
   async componentDidMount() {
     this.setState({searchMessages: []})
-    store.dispatch(toggleSearching())
+    store.dispatch(setSearching(false))
     await this._listMessages()
   }
 
@@ -114,7 +114,7 @@ class Chat extends React.Component {
   }
 
   _toggleSearch = () => {
-    store.dispatch(toggleSearching())
+    store.dispatch(setSearching(!this.props.searching))
     this.setState({searchMessages: []})
   }
 

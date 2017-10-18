@@ -18,13 +18,13 @@ const CHANNELS_ADD = 'CHANNELS_ADD'
 const CHANNELS_PRIVATE_ADD = 'CHANNELS_PRIVATE_ADD'
 const CHANNELS_SELECT = 'CHANNELS_SELECT'
 const UNREAD_CHANNEL_SET = 'UNREAD_CHANNEL_SET'
-const SEARCHING_TOGGLE = 'SEARCHING_TOGGLE'
+const SEARCHING_SET = 'SEARCHING_SET'
 
 export const addChannels = (payload) => ({type: CHANNELS_ADD, payload})
 export const addPrivateChannels = (payload) => ({type: CHANNELS_PRIVATE_ADD, payload})
 export const selectChannel = (payload) => ({type: CHANNELS_SELECT, payload})
 export const setChannelUnread = (payload) => ({type: UNREAD_CHANNEL_SET, payload})
-export const toggleSearching = () => ({type: SEARCHING_TOGGLE})
+export const setSearching = (payload) => ({type: SEARCHING_SET, payload})
 
 export default (state = initState, action) => {
   switch (action.type) {
@@ -50,8 +50,8 @@ export default (state = initState, action) => {
       })
 
       return {...state, list: [...newList], listPrivate: [...newListPrivate]}
-    case SEARCHING_TOGGLE:
-      return {...state, searching: !state.searching}
+    case SEARCHING_SET:
+      return {...state, searching: action.payload}
     default:
       return state
   }
