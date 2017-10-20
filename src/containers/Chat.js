@@ -24,7 +24,11 @@ class Chat extends React.Component {
     }
   }
 
-  async componentDidUpdate() {
+  async componentDidMount() {
+    this.setState({searchMessages: []})
+    store.dispatch(setSearching(false))
+    await this._listMessages()
+
     kuzzle.subscribeChannelMessages(this.props.currentChannel.id, (err, result) => {
       this.setState({
         messages: [...this.state.messages, {
@@ -34,12 +38,6 @@ class Chat extends React.Component {
         }]
       })
     })
-  }
-
-  async componentDidMount() {
-    this.setState({searchMessages: []})
-    store.dispatch(setSearching(false))
-    await this._listMessages()
   }
 
   _listMessages = async (isRefresh) => {

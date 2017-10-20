@@ -51,6 +51,7 @@ class KuzzleWrapper {
     }
 
     if (roomChannelMessages) {
+      console.log('unsub')
       roomChannelMessages.unsubscribe()
     }
 
