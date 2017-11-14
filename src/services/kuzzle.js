@@ -8,34 +8,37 @@ const rooms = []
 let roomChannelMessages
 
 class KuzzleWrapper {
-  constructor () {
-    this.kuzzle = new Kuzzle('10.34.50.59', {defaultIndex: 'foo'}, (err, res) => {
+  constructor() {
+    this.kuzzle = new Kuzzle('10.35.250.37', {defaultIndex: 'slam'}, (err, res) => {
       if (err) {
         console.error(err);
-      } else {
+      }
+      else {
         console.log('Connected!');
       }
     })
-    this.messagesCollection = this.kuzzle.collection('slack-messages')
-    this.usersCollection = this.kuzzle.collection('slack-users')
-    this.channelsCollection = this.kuzzle.collection('slack')
+    this.messagesCollection = this.kuzzle.collection('slam-messages')
+    this.usersCollection = this.kuzzle.collection('slam-users')
+    this.channelsCollection = this.kuzzle.collection('slam')
   }
 
-  subscribeBump (cb) {
+  subscribeBump(cb) {
     const currentUserId = store.getState().users.current.id
     const filter = {and: [{equals: {event: 'bump'}}, {equals: {bumping: currentUserId}}]}
     this.messagesCollection
       .subscribe(filter, {subscribeToSelf: false, scope: 'in'}, (err, result) => cb(err, result))
   }
 
-  subscribeChannelMessages (channelId, cb) {
-    const query = {and: [
-      {
-        equals: {
-          channel: channelId
+  subscribeChannelMessages(channelId, cb) {
+    const query = {
+      and: [
+        {
+          equals: {
+            channel: channelId
+          }
         }
-      }
-    ]}
+      ]
+    }
 
     if (channelId === '#geo') {
       const location = {...store.getState().users.location}
@@ -76,7 +79,7 @@ class KuzzleWrapper {
       })
   }
 
-  subscribeAllMessages () {
+  subscribeAllMessages() {
     this.messagesCollection
       .subscribe({}, {subscribeToSelf: true, scope: 'in'}, (err, result) => {
         if (result.document.content.event === 'bump') {
@@ -101,7 +104,7 @@ class KuzzleWrapper {
       })
   }
 
-  subscribeChannels () {
+  subscribeChannels() {
     this.channelsCollection
       .subscribe({}, {subscribeToSelf: true, scope: 'in'}, (err, result) => storeChannels(result))
       .onDone((err, roomObject) => {
@@ -114,7 +117,7 @@ class KuzzleWrapper {
       })
   }
 
-  subscribeUsers () {
+  subscribeUsers() {
     this.usersCollection.subscribe({}, {scope: 'in'}, (err, result) => {
       if (result.action === 'create') {
         store.dispatch(addUsers([{...result.document.content, id: result.document.id}]))
@@ -125,7 +128,7 @@ class KuzzleWrapper {
     })
   }
 
-  bump (userId, back = false) {
+  bump(userId, back = false) {
     const currentUserId = store.getState().users.current.id
     this.messagesCollection.publishMessage({
       event: 'bump',
@@ -135,19 +138,19 @@ class KuzzleWrapper {
     })
   }
 
-  async listLastMessages (channelId, from, size) {
+  async listLastMessages(channelId, from, size) {
     const query = {
-      query: {bool:{should:[{bool:{must:[{match_phrase_prefix: {channel: channelId.replace('#', '')}}]}}]}},
-      sort: [{ timestamp: 'desc' }]
+      query: {bool: {should: [{bool: {must: [{match_phrase_prefix: {channel: channelId.replace('#', '')}}]}}]}},
+      sort: [{timestamp: 'desc'}]
     }
 
     const location = store.getState().users.location
 
     if (channelId === '#geo') {
       query.query.bool.filter = {
-        geo_distance : {
-          distance : '5m',
-          location : {
+        geo_distance: {
+          distance: '5m',
+          location: {
             lat: location.latitude,
             lon: location.longitude
           }
@@ -155,63 +158,66 @@ class KuzzleWrapper {
       }
     }
 
-    return this.messagesCollection.searchPromise(query, { from, size })
+    return this.messagesCollection.searchPromise(query, {from, size})
   }
 
-  async searchMessages (text) {
+  async searchMessages(text) {
     const query = {
       query: {
-        bool: { must: [
-          { wildcard: { content: `*${text.toLowerCase()}*` } },
-          { terms: { channel: store.getState().channels.list.map(c => c.id.replace('#', '')) } }
-        ] } },
-      sort: [{ timestamp: 'desc' }]
+        bool: {
+          must: [
+            {wildcard: {content: `*${text.toLowerCase()}*`}},
+            {terms: {channel: store.getState().channels.list.map(c => c.id.replace('#', ''))}}
+          ]
+        }
+      },
+      sort: [{timestamp: 'desc'}]
     }
 
-    return this.messagesCollection.searchPromise(query, { size: 100 })
+    return this.messagesCollection.searchPromise(query, {size: 100})
   }
 
-  async listUsers () {
-    const result = await this.usersCollection.searchPromise({sort: [{ _uid: 'asc' }]}, { size: 100 })
+  async listUsers() {
+    const result = await this.usersCollection.searchPromise({sort: [{_uid: 'asc'}]}, {size: 100})
     const users = []
 
-    result.getDocuments().forEach(function(document) {
+    result.getDocuments().forEach(function (document) {
       users.push({...document.content, id: document.id})
     })
 
     store.dispatch(addUsers(users))
   }
 
-  async listChannels () {
-    const query = { query: { terms: { type: ['public', 'restricted'] } } }
-    const result = await this.channelsCollection.searchPromise(query, { size: 100 })
+  async listChannels() {
+    const query = {query: {terms: {type: ['public', 'restricted']}}}
+    const result = await this.channelsCollection.searchPromise(query, {size: 100})
     const channels = []
 
-    result.getDocuments().forEach(function(document) {
+    result.getDocuments().forEach(function (document) {
       channels.push({...document.content, id: document.id, unread: false})
     })
 
     store.dispatch(addChannels(channels))
   }
 
-  async listPrivateChannels () {
-    const query = { query: { bool: { should: [{ bool: { must: [{ match_phrase_prefix: { 'users': store.getState().users.current.id } }, { match_phrase_prefix: { type: 'private' } }] } }] } } }
+  async listPrivateChannels() {
+    const query = {query: {bool: {should: [{bool: {must: [{match_phrase_prefix: {'users': store.getState().users.current.id}}, {match_phrase_prefix: {type: 'private'}}]}}]}}}
 
     const result = await this.channelsCollection.searchPromise(query)
     const privateChannels = []
 
-    result.getDocuments().forEach(function(document) {
+    result.getDocuments().forEach(function (document) {
       privateChannels.push({...document.content, id: document.id, unread: false})
     })
 
     store.dispatch(addPrivateChannels(privateChannels))
   }
 
-  async createMessage (message) {
+  async createMessage(message) {
     return this.messagesCollection.createDocumentPromise(message)
   }
 
-  async createChannel (label, userId = null) {
+  async createChannel(label, userId = null) {
     let id = null
     if (!userId) {
       id = '#' + label
@@ -230,14 +236,14 @@ class KuzzleWrapper {
     return await this.channelsCollection.createDocumentPromise(id, channel)
   }
 
-  async updateCurrentUser () {
+  async updateCurrentUser() {
     const currentUser = {...store.getState().users.current}
     delete currentUser.id
 
     return this.usersCollection.updateDocument(store.getState().users.current.id, {...currentUser})
   }
 
-  heartBeatStatus () {
+  heartBeatStatus() {
     const heartBeat = () => {
       const currentUser = {...store.getState().users.current}
       delete currentUser.id
@@ -250,12 +256,12 @@ class KuzzleWrapper {
     setInterval(heartBeat, 50000)
   }
 
-  resetSubscribe () {
+  resetSubscribe() {
     rooms.forEach(room => room.unsubscribe())
   }
 }
 
-function storeChannels (result) {
+function storeChannels(result) {
   const channel = {
     ...result.document.content,
     id: result.document.id,
@@ -264,7 +270,8 @@ function storeChannels (result) {
 
   if (channel.type === 'private') {
     store.dispatch(addPrivateChannels([channel]))
-  } else {
+  }
+  else {
     store.dispatch(addChannels([channel]))
   }
 }
